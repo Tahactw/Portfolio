@@ -1,30 +1,23 @@
 import type { Metadata } from 'next';
-import { Orbitron, Rajdhani } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import './globals.css';
 import { Providers } from '@/components/Providers';
-import { Header } from '@/components/ui/Header'; // Import the new Header
+import { DockNavigation } from '@/components/ui/DockNavigation';
 import { Toaster } from 'react-hot-toast';
 
-const orbitron = Orbitron({ 
+const inter = Inter({ 
   subsets: ['latin'],
-  variable: '--font-orbitron',
-  display: 'swap',
-});
-
-const rajdhani = Rajdhani({ 
-  subsets: ['latin'],
-  variable: '--font-rajdhani',
-  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-inter',
   display: 'swap',
 });
 
 export const metadata: Metadata = {
-  title: 'Portfolio | Taha Mohammed',
-  description: 'The professional portfolio of Taha Mohammed, a Mechatronics Engineer and Creative Developer.',
+  title: 'Portfolio | Mechatronics Engineer & Creative Developer',
+  description: 'Mechatronics Engineering student with 5+ years in motion design and creative development',
   keywords: ['mechatronics', 'engineering', 'motion design', '3D', 'portfolio', 'Tahactw'],
   openGraph: {
-    title: 'Portfolio | Taha Mohammed',
-    description: 'Explore the work of Taha Mohammed in engineering and creative development.',
+    title: 'Portfolio | Mechatronics Engineer',
+    description: 'Explore my work in engineering and creative design',
     type: 'website',
   },
 };
@@ -35,20 +28,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${orbitron.variable} ${rajdhani.variable}`}>
-      <body className="relative bg-arena-dark text-text-primary antialiased font-body">
+    <html lang="en" suppressHydrationWarning className={inter.variable}>
+      <body className="relative bg-bg-primary text-text-primary antialiased">
         <Providers>
-          <Header />
-          <main>{children}</main>
+          {children}
+          <DockNavigation />
           <Toaster 
             position="bottom-right" 
             toastOptions={{
               className: 'glass',
               style: {
-                background: 'var(--color-arena-dark)',
-                color: 'var(--color-text-primary)',
-                border: '1px solid var(--color-arena-border)',
-                fontFamily: 'var(--font-rajdhani)',
+                background: 'var(--bg-secondary)',
+                color: 'var(--text-primary)',
+                border: '1px solid rgba(186, 170, 138, 0.2)',
               },
             }}
           />
