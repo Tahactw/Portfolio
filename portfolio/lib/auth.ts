@@ -10,14 +10,18 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async signIn({ profile }) {
-      return profile?.login === process.env.GITHUB_ADMIN_USERNAME;
+      const githubProfile = profile as { login?: string };
+      return githubProfile?.login === process.env.GITHUB_ADMIN_USERNAME;
     },
     async jwt({ token, profile }) {
-      if (profile) token.login = profile.login;
+      const githubProfile = profile as { login?: string };
+      if (githubProfile?.login) token.login = githubProfile.login;
       return token;
     },
     async session({ session, token }) {
-      if (session?.user) session.user.login = token.login as string;
+      if (session?.user && token?.login) {
+        (session.user as { login?: string }).login = token.login as string;
+      }
       return session;
     },
   },
