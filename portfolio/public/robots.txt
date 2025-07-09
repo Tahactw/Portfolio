@@ -1,8 +1,0 @@
-User-agent: *
-Allow: /
-
-# Disallow admin pages from being crawled
-Disallow: /admin
-
-# Add your sitemap URL here when you have one
-# Sitemap: https://your-domain.com/sitemap.xml
