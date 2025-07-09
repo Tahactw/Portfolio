@@ -25,8 +25,10 @@ export default function World() {
 
   useEffect(() => {
     if (!isMuted) {
-        const sound = playSound('ambient-city', { loop: true, volume: 0.1 });
-        return () => sound?.stop();
+      const sound = playSound('ambient-city', { loop: true, volume: 0.1 });
+      return () => {
+        sound?.stop(); // ✅ Cleaned up correctly
+      };
     }
   }, [isMuted, playSound]);
 
@@ -41,7 +43,6 @@ export default function World() {
     setIsMoving(moving);
     setIsRunning(running);
     
-    // Play footstep sound only when starting to move
     if (moving && !isMoving) {
       playSound('robot-footstep', { volume: 0.2 });
     }
