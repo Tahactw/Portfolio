@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Full-height layout foundation */
+  html,
+  body {
+    @apply w-full h-full m-0 p-0 overflow-hidden;
+  }
+
+  :root {
+    --bg-primary: #1A1611;
+    --bg-secondary: #2A231C;
+    --text-primary: #FDF6E3;
+    --text-secondary: #BAAA8A;
+    --accent-warm: #D4A373;
+    --accent-earth: #8B6F47;
+    --accent-leaf: #556B2F;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  /* Professional Typography */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-bold tracking-tight text-text-primary;
+  }
+
+  h1 {
+    @apply text-4xl md:text-6xl;
+  }
+
+  h2 {
+    @apply text-3xl md:text-4xl;
+  }
+
+  h3 {
+    @apply text-2xl md:text-3xl;
+  }
+
+  p {
+    @apply leading-relaxed;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-bg-secondary/50 backdrop-blur-md border border-text-secondary/20;
+  }
+
+  .glass-heavy {
+    @apply bg-bg-secondary/80 backdrop-blur-lg border border-text-secondary/30;
+  }
+
+  .button-primary {
+    @apply px-6 py-3 bg-accent-warm/20 hover:bg-accent-warm/30 text-accent-warm border border-accent-warm/50 rounded-lg transition-all font-medium;
+  }
+
+  .button-secondary {
+    @apply px-6 py-3 bg-text-primary/10 hover:bg-text-primary/20 border border-text-primary/20 rounded-lg transition-all font-medium;
+  }
+
+  /* Animation delay utilities */
+  .animation-delay-100 { animation-delay: 100ms; }
+  .animation-delay-200 { animation-delay: 200ms; }
+  .animation-delay-300 { animation-delay: 300ms; }
+  .animation-delay-400 { animation-delay: 400ms; }
+  .animation-delay-500 { animation-delay: 500ms; }
+
+  .loading-dots::after {
+    content: '...';
+    animation: dots 1.5s steps(4, end) infinite;
+  }
+
+  @keyframes dots {
+    0%, 20% { content: ''; }
+    40% { content: '.'; }
+    60% { content: '..'; }
+    80%, 100% { content: '...'; }
+  }
+}
+
+/* Custom scrollbar */
+.scrollable-content::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollable-content::-webkit-scrollbar-track {
+  background: rgba(42, 35, 28, 0.5);
+}
+
+.scrollable-content::-webkit-scrollbar-thumb {
+  background: var(--accent-earth);
+  border-radius: 4px;
+}
+
+.scrollable-content::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-warm);
+}
+
+/* DnD Kit Drag Overlay */
+.drag-overlay {
+  cursor: grabbing;
+  opacity: 0.9;
+}
