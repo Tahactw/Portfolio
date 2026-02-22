@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="" />
+  <meta name="theme-color" content="#00ff88" />
+  <title>Portfolio</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne+Mono&family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <!-- Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="/css/core.css" />
+  <link rel="stylesheet" href="/css/layout.css" />
+  <link rel="stylesheet" href="/css/sections.css" />
+  <link rel="stylesheet" href="/css/animations.css" />
+</head>
+<body>
+
+  <!-- Custom Cursor (crosshair style) -->
+  <div class="cursor-dot" id="cursorDot"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- WebGL Background -->
+  <canvas id="bgCanvas"></canvas>
+
+  <!-- Particle Layer -->
+  <canvas id="particleCanvas"></canvas>
+
+  <!-- Scanline overlay -->
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <!-- HUD Frame corners -->
+  <div class="hud-frame" aria-hidden="true">
+    <span class="hud-corner hud-corner--tl"></span>
+    <span class="hud-corner hud-corner--tr"></span>
+    <span class="hud-corner hud-corner--bl"></span>
+    <span class="hud-corner hud-corner--br"></span>
+  </div>
+
+  <!-- Loader — terminal boot -->
+  <div class="loader" id="loader">
+    <div class="loader__terminal">
+      <div class="loader__lines" id="loaderLines"></div>
+      <div class="loader__bar">
+        <div class="loader__bar-fill" id="loaderBarFill"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation — right-side HUD -->
+  <nav class="nav" id="nav">
+    <div class="nav__track">
+      <ul class="nav__links" id="navLinks">
+        <li><button class="nav__link active" data-section="hero" data-index="0"><span class="nav__dot"></span><span class="nav__label">Home</span></button></li>
+        <li><button class="nav__link" data-section="about" data-index="1"><span class="nav__dot"></span><span class="nav__label">About</span></button></li>
+        <li><button class="nav__link" data-section="skills" data-index="2"><span class="nav__dot"></span><span class="nav__label">Skills</span></button></li>
+        <li><button class="nav__link" data-section="projects" data-index="3"><span class="nav__dot"></span><span class="nav__label">Projects</span></button></li>
+        <li><button class="nav__link" data-section="experience" data-index="4"><span class="nav__dot"></span><span class="nav__label">XP</span></button></li>
+        <li><button class="nav__link" data-section="contact" data-index="5"><span class="nav__dot"></span><span class="nav__label">Connect</span></button></li>
+      </ul>
+    </div>
+    <div class="nav__counter" id="navCounter">
+      <span class="nav__counter-current">01</span>
+      <span class="nav__counter-sep">/</span>
+      <span class="nav__counter-total">06</span>
+    </div>
+  </nav>
+
+  <!-- Mobile toggle -->
+  <button class="nav-mobile-toggle" id="navToggle" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
+
+  <!-- Section Viewport -->
+  <div class="viewport" id="viewport">
+    <main id="content"></main>
+  </div>
+
+  <!-- Glitch transition overlay -->
+  <div class="glitch-overlay" id="glitchOverlay" aria-hidden="true">
+    <div class="glitch-overlay__bar"></div>
+    <div class="glitch-overlay__bar"></div>
+    <div class="glitch-overlay__bar"></div>
+    <div class="glitch-overlay__bar"></div>
+    <div class="glitch-overlay__bar"></div>
+    <div class="glitch-overlay__static"></div>
+  </div>
+
+  <!-- Project Modal -->
+  <div class="project-modal" id="projectModal">
+    <div class="project-modal__backdrop"></div>
+    <div class="project-modal__dialog">
+      <div class="modal__hud-frame">
+        <span class="hud-corner hud-corner--tl"></span>
+        <span class="hud-corner hud-corner--tr"></span>
+        <span class="hud-corner hud-corner--bl"></span>
+        <span class="hud-corner hud-corner--br"></span>
+      </div>
+      <button class="project-modal__close" aria-label="Close">
+        <i data-lucide="x" style="width:20px;height:20px;"></i>
+      </button>
+      <div class="project-modal__body" id="projectModalBody"></div>
+    </div>
+  </div>
+
+  <!-- Hidden admin access -->
+  <button class="admin-gate" id="adminGate" aria-label="Settings" title="" onclick="window.location.href='/admin'">
+    <i data-lucide="hexagon" style="width:14px;height:14px;"></i>
+  </button>
+
+  <!-- Scripts -->
+  <script src="/js/utils.js"></script>
+  <script src="/js/cursor.js"></script>
+  <script src="/js/three-scene.js"></script>
+  <script src="/js/particles.js"></script>
+  <script src="/js/renderer.js"></script>
+  <script src="/js/animations.js"></script>
+  <script src="/js/scroll.js"></script>
+  <script src="/js/transitions.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>

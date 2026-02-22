@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Portfolio CMS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <link rel="stylesheet" href="/admin/css/admin.css" />
+  <link rel="stylesheet" href="/admin/css/components.css" />
+</head>
+<body>
+  <!-- Auth Screen -->
+  <div class="auth-screen" id="authScreen">
+    <div class="auth-card">
+      <div class="auth-card__icon">
+        <i data-lucide="lock" style="width:32px;height:32px;"></i>
+      </div>
+      <h1 class="auth-card__title">Admin Access</h1>
+      <p class="auth-card__text">Enter your admin token to continue.</p>
+      <form id="authForm" class="auth-card__form">
+        <div class="form-group">
+          <input type="password" id="tokenInput" class="form-input"
+                 placeholder="Admin Token" autocomplete="off" required />
+        </div>
+        <button type="submit" class="btn btn--primary btn--full">
+          <i data-lucide="log-in" style="width:18px;height:18px;"></i>
+          Authenticate
+        </button>
+        <p class="auth-card__error" id="authError"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- Admin Dashboard -->
+  <div class="admin-dashboard" id="adminDashboard" style="display:none;">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar__header">
+        <span class="sidebar__logo">CMS<span class="accent">_</span></span>
+        <button class="sidebar__toggle" id="sidebarToggle">
+          <i data-lucide="panel-left-close" style="width:18px;height:18px;"></i>
+        </button>
+      </div>
+      <nav class="sidebar__nav">
+        <button class="sidebar__link active" data-section="overview">
+          <i data-lucide="layout-dashboard" style="width:18px;height:18px;"></i>
+          <span>Overview</span>
+        </button>
+        <button class="sidebar__link" data-section="meta">
+          <i data-lucide="settings" style="width:18px;height:18px;"></i>
+          <span>Meta</span>
+        </button>
+        <button class="sidebar__link" data-section="hero">
+          <i data-lucide="sparkles" style="width:18px;height:18px;"></i>
+          <span>Hero</span>
+        </button>
+        <button class="sidebar__link" data-section="about">
+          <i data-lucide="user" style="width:18px;height:18px;"></i>
+          <span>About</span>
+        </button>
+        <button class="sidebar__link" data-section="skills">
+          <i data-lucide="code-2" style="width:18px;height:18px;"></i>
+          <span>Skills</span>
+        </button>
+        <button class="sidebar__link" data-section="projects">
+          <i data-lucide="folder" style="width:18px;height:18px;"></i>
+          <span>Projects</span>
+        </button>
+        <button class="sidebar__link" data-section="experience">
+          <i data-lucide="briefcase" style="width:18px;height:18px;"></i>
+          <span>Experience</span>
+        </button>
+        <button class="sidebar__link" data-section="contact">
+          <i data-lucide="mail" style="width:18px;height:18px;"></i>
+          <span>Contact</span>
+        </button>
+        <button class="sidebar__link" data-section="settings">
+          <i data-lucide="sliders" style="width:18px;height:18px;"></i>
+          <span>Settings</span>
+        </button>
+        <div class="sidebar__divider"></div>
+        <button class="sidebar__link" data-section="json">
+          <i data-lucide="file-json" style="width:18px;height:18px;"></i>
+          <span>Raw JSON</span>
+        </button>
+      </nav>
+      <div class="sidebar__footer">
+        <button class="btn btn--ghost btn--sm" id="logoutBtn">
+          <i data-lucide="log-out" style="width:16px;height:16px;"></i>
+          Logout
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="admin-main" id="adminMain">
+      <header class="admin-header">
+        <h2 class="admin-header__title" id="pageTitle">Overview</h2>
+        <div class="admin-header__actions">
+          <button class="btn btn--ghost btn--sm" id="previewBtn">
+            <i data-lucide="eye" style="width:16px;height:16px;"></i>
+            Preview
+          </button>
+          <button class="btn btn--primary btn--sm" id="saveBtn">
+            <i data-lucide="save" style="width:16px;height:16px;"></i>
+            Save Changes
+          </button>
+        </div>
+      </header>
+      <div class="admin-content" id="adminContent">
+        <!-- Dynamic content loaded here -->
+      </div>
+    </main>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Scripts -->
+  <script src="/admin/js/api-client.js"></script>
+  <script src="/admin/js/auth.js"></script>
+  <script src="/admin/js/editor.js"></script>
+  <script src="/admin/js/ordering.js"></script>
+  <script src="/admin/js/preview.js"></script>
+  <script src="/admin/js/json-editor.js"></script>
+  <script src="/admin/js/admin-app.js"></script>
+</body>
+</html>
