@@ -140,6 +140,36 @@
     "sample": true
   },
   {
+    "id": "ball-beam",
+    "title": "Ball & Beam",
+    "tagline": "Control",
+    "summary": "dsa",
+    "body": "dsafdas",
+    "role": "Lead",
+    "startDate": "2026-07-30",
+    "status": "completed",
+    "category": "Robotics",
+    "tags": [
+      "embedded"
+    ],
+    "stack": [],
+    "cover": "/media/projects/villa-1-2-ms7i1vqo.webp",
+    "gallery": [
+      "/media/projects/whatsapp-image-2026-07-17-at-7-23-11-pm--ms7i26gg.webp",
+      "/media/projects/whatsapp-image-2026-07-17-at-7-23-11-pm--ms7i2bn4.webp"
+    ],
+    "models": [],
+    "videos": [],
+    "links": [],
+    "metrics": [],
+    "highlights": [],
+    "featured": false,
+    "confidential": false,
+    "order": 3,
+    "published": true,
+    "teamSize": 2
+  },
+  {
     "id": "span-farm-gantry",
     "title": "SPAN — 3-Axis Seeding Gantry (Capstone)",
     "tagline": "A greenhouse-scale CNC gantry that plants and waters a 2.4 × 1.2 m bed on its own.",
@@ -197,38 +227,8 @@
     ],
     "featured": true,
     "confidential": false,
-    "order": 3,
-    "published": true,
-    "sample": true
-  },
-  {
-    "id": "ball-beam",
-    "title": "Ball & Beam",
-    "tagline": "Control",
-    "summary": "dsa",
-    "body": "dsafdas",
-    "role": "Lead",
-    "startDate": "2026-07-30",
-    "status": "completed",
-    "category": "Robotics",
-    "tags": [
-      "embedded"
-    ],
-    "stack": [],
-    "cover": "/media/projects/villa-1-2-ms7i1vqo.webp",
-    "gallery": [
-      "/media/projects/whatsapp-image-2026-07-17-at-7-23-11-pm--ms7i26gg.webp",
-      "/media/projects/whatsapp-image-2026-07-17-at-7-23-11-pm--ms7i2bn4.webp"
-    ],
-    "models": [],
-    "videos": [],
-    "links": [],
-    "metrics": [],
-    "highlights": [],
-    "featured": false,
-    "confidential": false,
     "order": 4,
     "published": true,
-    "teamSize": 2
+    "sample": true
   }
 ]
