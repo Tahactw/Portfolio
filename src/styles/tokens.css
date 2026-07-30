@@ -1,30 +1,47 @@
 /* ---------------------------------------------------------------------------
    Design tokens. Single source of truth for colour, type scale, spacing
-   rhythm and motion. Components reference these via Tailwind mappings
-   (tailwind.config.ts) or directly.
+   rhythm and motion.
 
-   Themes: [data-theme="dark"] (default) and [data-theme="light"] on <html>.
-   A small inline script in BaseLayout sets the attribute before paint.
+   Two themes = two times of day in the same world:
+   [data-theme="dark"]  -> night (default): deep teal sky, warm lit windows
+   [data-theme="light"] -> day: luminous cyan sky, cream stone, high sun
+
+   All contrast pairs verified AA (body 4.5:1+, large/UI 3:1+) in both
+   themes — see DESIGN.md for the numbers.
 --------------------------------------------------------------------------- */
 
 :root {
-  /* Motion: a well-tuned servo — fast approach, clean settle, no overshoot */
+  /* Motion: three springs, machines with mass. Fast approach, slight
+     overshoot, clean settle. Generated as linear() approximations. */
+  --spring-snap: linear(
+    0, 0.286 18.6%, 0.596 32.9%, 0.849 45.8%, 0.99 57.2%, 1.041 68.6%, 1.032 81.5%, 1.01 95.8%, 1
+  );
+  --spring-pop: linear(
+    0, 0.194 12.2%, 0.526 24.1%, 0.825 36%, 1.014 48.4%, 1.085 61.3%, 1.076 74.5%, 1.026 89.6%, 1
+  );
+  --spring-swing: linear(
+    0, 0.16 10.5%, 0.451 20.9%, 0.735 31.1%, 0.939 41.4%, 1.041 52.3%, 1.06 63.7%, 1.031 77%, 1.005 90.7%, 1
+  );
+  --dur-snap: 200ms;
+  --dur-pop: 420ms;
+  --dur-swing: 700ms;
+
+  /* Legacy easing names kept so existing components keep settling */
   --ease-settle: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-brisk: cubic-bezier(0.55, 0, 0.35, 1);
   --dur-fast: 140ms;
   --dur-base: 240ms;
   --dur-slow: 420ms;
 
-  /* Type scale: 1.333 (perfect fourth) on a 17px body, display clamped */
+  /* Type scale: 1.333 on a 17px body, display clamped */
   --fs-display: clamp(2.4rem, 1.2rem + 5.2vw, 4rem);
   --fs-h2: clamp(1.55rem, 1.2rem + 1.4vw, 2.02rem);
   --fs-h3: 1.27rem;
-  --fs-body: 1.0625rem;   /* 17px */
+  --fs-body: 1.0625rem;
   --fs-small: 0.9rem;
-  --fs-mono: 0.8125rem;   /* 13px — labels, dims, dates */
+  --fs-mono: 0.8125rem;
   --fs-mono-sm: 0.72rem;
 
-  /* Spacing rhythm, 8px base */
   --sp-1: 0.5rem;
   --sp-2: 1rem;
   --sp-3: 1.5rem;
@@ -33,36 +50,119 @@
   --sp-8: 4rem;
   --sp-12: 6rem;
 
-  --radius: 4px; /* machined edge, barely broken */
+  --radius: 6px;
 }
 
+/* ------------------------------------------------------- night (default) */
 :root,
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --c-ink: #0f1216;         /* page */
-  --c-panel: #151a20;       /* raised surface */
-  --c-line: #262d36;        /* hairline rules (decorative) */
-  --c-line-strong: #626d7b; /* interactive component borders, >=3:1 on ink AND panel */
-  --c-text: #e7ebef;
-  --c-muted: #9ba6b2;
-  --c-accent: #e4a339;      /* gantry amber: marks anything that responds to you */
-  --c-accent-text: #e4a339; /* accent when used as text on this theme */
-  --c-accent-ink: #1a1206;  /* text sitting on an accent-filled surface */
-  --c-shadow: rgb(0 0 0 / 0.45);
+
+  /* UI surfaces + text */
+  --c-ink: #0b1e28;         /* page = night sky at the horizon */
+  --c-panel: #142e3a;       /* plaques, cards */
+  --c-line: #1e3a48;        /* decorative hairlines */
+  --c-line-strong: #5d7c8a; /* interactive borders, >=3:1 on ink AND panel */
+  --c-text: #eaf2f5;
+  --c-muted: #9db4bf;
+  --c-accent: #f0a63c;      /* the hero colour: anything that asks to be pressed */
+  --c-accent-text: #f0a63c;
+  --c-accent-ink: #201403;
+  --c-shadow: rgb(2 10 15 / 0.5);
+
+  /* World: sky */
+  --w-sky-top: #06141c;
+  --w-sky-mid: #0b2530;
+  --w-sky-low: #16394a;     /* glow at the horizon */
+  --w-halo-c: #f0c77d;
+  --w-halo-a: 0.12;
+  --w-glow-alpha: 1;
+
+  /* World: structure values, far to near (fog = mixing toward sky).
+     Aerial perspective: far sits almost on the sky value. */
+  --w-far: #1a3f51;
+  --w-far-lit: #21485a;
+  --w-mid: #143243;
+  --w-mid-lit: #1d4457;
+  --w-mid-face: #1a3e50;
+  --w-near: #0a1a22;
+  --w-near-lit: #16303d;
+  --w-near-edge: #2c5163;
+  --w-fog-a: 1;
+  --w-fog-b: 0.95;
+
+  /* World: life */
+  --w-window: #ffc466;
+  --w-window-glow: rgb(255 196 102 / 0.28);
+  --w-window-alpha: 1;
+  --w-lamp: #e8a742;
+  --w-smoke: rgb(157 180 191 / 0.16);
+  --w-star-alpha: 0.8;
+  --w-sun-alpha: 0;
+  --w-moon-alpha: 1;
+  --w-sun-shift: 420px;
+  --w-moon-shift: 0px;
+  --w-cloud: #17394a;
+  --w-cloud-alpha: 0.55;
+  --w-tree: #2a4438;
+  --w-tree-lit: #35544a;
+  --w-tree-near: #1c3129;
+  --w-tree-near-lit: #27423a;
+  --w-window-lit: #ffc466;
+  --w-daylit-alpha: 1;
 }
 
+/* ------------------------------------------------------------------- day */
 :root[data-theme='light'] {
   color-scheme: light;
-  --c-ink: #f6f7f8;         /* drafting vellum, not inverted graphite */
-  --c-panel: #ffffff;
-  --c-line: #d8dde3;
-  --c-line-strong: #808b97;
-  --c-text: #1a2027;
-  --c-muted: #5b6673;
-  --c-accent: #b57b1e;      /* non-text accent marks + focus ring, >=3:1 on white */
-  --c-accent-text: #8a5c14; /* accent as text: darkened to pass 4.5:1 */
-  --c-accent-ink: #1a1206;
-  --c-shadow: rgb(26 32 39 / 0.12);
+
+  --c-ink: #c5ecf0;         /* page = daylight haze near the horizon */
+  --c-panel: #fbf8ef;       /* warm paper/stone for content */
+  --c-line: #a9d3d8;
+  --c-line-strong: #587c86;
+  --c-text: #1e2e36;
+  --c-muted: #4e6470;
+  --c-accent: #b57b1e;      /* focus + UI marks: >=3:1 on cream */
+  --c-accent-text: #7a4e0b; /* accent as text: 4.5:1+ on cream AND the day page bg */
+  --c-accent-ink: #201403;
+  --c-shadow: rgb(30 46 54 / 0.18);
+
+  --w-sky-top: #7cd6e4;
+  --w-sky-mid: #a4e2ea;
+  --w-sky-low: #c5ecf0;
+  --w-halo-c: #ffffff;
+  --w-halo-a: 0.55;
+  --w-glow-alpha: 0;
+
+  --w-far: #8fcdd6;
+  --w-far-lit: #a6dbe2;
+  --w-mid: #6a9daa;
+  --w-mid-lit: #86b8c3;
+  --w-mid-face: #7fb3be;
+  --w-near: #3e5d6b;
+  --w-near-lit: #567b8a;
+  --w-near-edge: #7fa9b5;
+  --w-fog-a: 0.9;
+  --w-fog-b: 0.72;
+
+  --w-window: #2c4450;      /* dark glass by day */
+  --w-window-glow: rgb(255 196 102 / 0);
+  --w-window-alpha: 0.55;
+  --w-lamp: #e8a742;
+  --w-smoke: rgb(255 255 255 / 0.4);
+  --w-star-alpha: 0;
+  --w-sun-alpha: 1;
+  --w-moon-alpha: 0;
+  --w-sun-shift: 0px;
+  --w-moon-shift: 420px;
+  --w-cloud: #ffffff;
+  --w-cloud-alpha: 0.75;
+  --w-tree: #7c8a4c;
+  --w-tree-lit: #97a75e;
+  --w-tree-near: #5c6f3c;
+  --w-tree-near-lit: #71854b;
+  --w-window-lit: #e8963a;
+  --w-daylit-alpha: 1;
 }
 
 @media print {

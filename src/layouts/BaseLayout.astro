@@ -1,5 +1,7 @@
 ---
+import { existsSync, readdirSync } from 'node:fs';
 import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
 import archivoUrl from '../fonts/archivo-var-latin.woff2?url';
 import plexMono400Url from '../fonts/plex-mono-400-latin.woff2?url';
 import Header from '../components/Header.astro';
@@ -18,6 +20,26 @@ interface Props {
 }
 
 const { title, description, ogImage, jsonLd, noindex = false } = Astro.props;
+
+/* B3 asset override: woff2 files named display*.woff2 in public/fonts/
+   become the display face, silently. Bold in the filename maps to 700. */
+let displayFonts: { href: string; weight: number }[] = [];
+try {
+  displayFonts = readdirSync('public/fonts')
+    .filter((f) => /^display.*\.woff2$/i.test(f))
+    .slice(0, 4)
+    .map((f) => ({
+      href: withBase(`/fonts/${f}`),
+      weight: /bold|700/i.test(f) ? 700 : /medium|500/i.test(f) ? 500 : 400,
+    }));
+} catch {
+  /* no public/fonts dir: generated (Archivo) stays */
+}
+
+/* B5 asset override: ambient sound appears only when the file exists.
+   Muted by default, one obvious toggle, remembered per device. */
+const ambienceFile = existsSync('public/media/audio/ambience.mp3');
+const ambienceHref = withBase('/media/audio/ambience.mp3');
 
 const site = Astro.site ?? new URL('http://localhost:4321');
 const canonical = new URL(Astro.url.pathname, site);
@@ -52,23 +74,43 @@ const jsonLdSafe = jsonLd ? JSON.stringify(jsonLd).replace(/</g, '\\u003c') : nu
     <link rel="preload" href={archivoUrl} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={plexMono400Url} as="font" type="font/woff2" crossorigin />
 
+    <ClientRouter />
+
+    {displayFonts.length > 0 && (
+      <style
+        set:html={
+          displayFonts
+            .map(
+              (f) =>
+                `@font-face{font-family:'DisplayOverride';src:url('${f.href}') format('woff2');font-weight:${f.weight};font-display:swap;}`,
+            )
+            .join('') + `:root{--f-display:'DisplayOverride';}`
+        }
+      />
+    )}
+
     {jsonLdSafe && <script is:inline type="application/ld+json" set:html={jsonLdSafe} />}
 
     <script is:inline>
       // Theme before first paint: stored choice wins, else system preference.
+      // Re-applied after every client-side navigation swap.
       (function () {
-        document.documentElement.classList.remove('no-js');
-        var stored = null;
-        try {
-          stored = localStorage.getItem('theme');
-        } catch (e) {}
-        var theme =
-          stored === 'light' || stored === 'dark'
-            ? stored
-            : window.matchMedia('(prefers-color-scheme: light)').matches
-              ? 'light'
-              : 'dark';
-        document.documentElement.setAttribute('data-theme', theme);
+        function applyTheme() {
+          document.documentElement.classList.remove('no-js');
+          var stored = null;
+          try {
+            stored = localStorage.getItem('theme');
+          } catch (e) {}
+          var theme =
+            stored === 'light' || stored === 'dark'
+              ? stored
+              : window.matchMedia('(prefers-color-scheme: light)').matches
+                ? 'light'
+                : 'dark';
+          document.documentElement.setAttribute('data-theme', theme);
+        }
+        applyTheme();
+        document.addEventListener('astro:after-swap', applyTheme);
       })();
     </script>
   </head>
@@ -80,10 +122,65 @@ const jsonLdSafe = jsonLd ? JSON.stringify(jsonLd).replace(/</g, '\\u003c') : nu
     </main>
     <Footer />
 
+    {ambienceFile && (
+      <button
+        id="ambience-toggle"
+        type="button"
+        data-src={ambienceHref}
+        aria-pressed="false"
+        aria-label="Turn ambient sound on"
+        class="no-print fixed bottom-4 right-4 z-30 mono text-[0.72rem] border border-line-strong bg-panel text-muted hover:text-text rounded px-3 py-2.5 min-h-[44px] transition-colors"
+      >
+        Sound: off
+      </button>
+    )}
+
+    <script>
+      // Ambient sound: only if the owner supplied a file; never autoplays.
+      function initAmbience() {
+        const btn = document.getElementById('ambience-toggle');
+        if (!btn || btn.dataset.wired) return;
+        btn.dataset.wired = '1';
+        let audio: HTMLAudioElement | null = null;
+        let on = false;
+        const label = () => {
+          btn.textContent = on ? 'Sound: on' : 'Sound: off';
+          btn.setAttribute('aria-pressed', String(on));
+          btn.setAttribute('aria-label', on ? 'Turn ambient sound off' : 'Turn ambient sound on');
+        };
+        btn.addEventListener('click', () => {
+          on = !on;
+          if (on) {
+            if (!audio) {
+              audio = new Audio(btn.dataset.src ?? '');
+              audio.loop = true;
+              audio.volume = 0.3;
+            }
+            void audio.play().catch(() => {
+              on = false;
+              label();
+            });
+          } else {
+            audio?.pause();
+          }
+          try {
+            localStorage.setItem('ambience-on', String(on));
+          } catch { /* fine */ }
+          label();
+        });
+        // remembered ON state still needs a tap to actually start (autoplay rules);
+        // reflect the stored preference in the label only.
+        label();
+      }
+      document.addEventListener('astro:page-load', initAmbience);
+    </script>
+
     <script>
       // Scroll reveals: one fade-and-rise per element, triggered once.
-      const els = document.querySelectorAll<HTMLElement>('.reveal');
-      if (els.length > 0) {
+      // Re-initialised after every client-side navigation.
+      function initReveals() {
+        const els = document.querySelectorAll<HTMLElement>('.reveal:not(.is-in)');
+        if (els.length === 0) return;
         const io = new IntersectionObserver(
           (entries) => {
             // elements entering in the same batch stagger by 40ms, capped
@@ -102,6 +199,7 @@ const jsonLdSafe = jsonLd ? JSON.stringify(jsonLd).replace(/</g, '\\u003c') : nu
         );
         for (const el of els) io.observe(el);
       }
+      document.addEventListener('astro:page-load', initReveals);
     </script>
   </body>
 </html>

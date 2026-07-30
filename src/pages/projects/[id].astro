@@ -48,5 +48,5 @@ const jsonLd = {
 
 <script>
   import { wireProjectMedia } from '../../lib/media-wire';
-  wireProjectMedia();
+  document.addEventListener('astro:page-load', () => wireProjectMedia());
 </script>

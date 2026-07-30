@@ -39,7 +39,7 @@ export default function CollectionView({
   async function persist(next: Item[], message: string) {
     setBusy(true);
     try {
-      await store.saveCollection(spec, stripOrder(spec, next), message);
+      await store.saveCollection(spec, next, message);
       setItems(next);
       toast({
         kind: 'ok',
@@ -54,7 +54,7 @@ export default function CollectionView({
         );
         if (retry) {
           try {
-            await store.forceSaveCollection(spec, stripOrder(spec, next), message);
+            await store.forceSaveCollection(spec, next, message);
             setItems(next);
             toast({ kind: 'ok', text: 'Saved over the newer version. Your site updates in about a minute.' });
           } catch (e2) {
@@ -263,7 +263,3 @@ function sortForList(spec: CollectionSpec, items: Item[]): Item[] {
   return copy;
 }
 
-/** The list view sorts a copy; what we write back is exactly what is shown. */
-function stripOrder(_spec: CollectionSpec, items: Item[]): Item[] {
-  return items;
-}

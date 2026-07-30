@@ -1,9 +1,10 @@
 ---
+import { existsSync } from 'node:fs';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SectionHead from '../components/SectionHead.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import CertCard from '../components/CertCard.astro';
-import HeroFigure from '../components/HeroFigure.astro';
+import Vista from '../components/world/Vista.astro';
 import EmptyState from '../components/EmptyState.astro';
 import {
   profile,
@@ -17,6 +18,10 @@ import {
 import { withBase } from '../lib/paths';
 
 const heroProjects = featuredProjects.length > 0 ? featuredProjects : projects.slice(0, 3);
+
+/* B1 asset override: drop public/media/models/hero.glb into the repo and a
+   "on the bench today" 3D stage appears between the vista and the floor. */
+const heroModel = existsSync('public/media/models/hero.glb');
 const homeCerts = featuredCertificates.length > 0 ? featuredCertificates : certificates.slice(0, 3);
 
 const site = Astro.site ?? new URL('http://localhost:4321');
@@ -38,28 +43,31 @@ const jsonLd = {
   description={profile.shortBio}
   jsonLd={jsonLd}
 >
-  <!-- Hero -->
-  <section class="border-b hairline overflow-hidden">
-    <div class="wrap grid lg:grid-cols-[1.15fr_1fr] gap-x-12 gap-y-14 py-16 sm:py-24 items-center">
-      <div>
-        <p class="hero-step eyebrow">{profile.location} · {profile.availability}</p>
+  <!-- Hero: the vista — an establishing shot over the maker-district -->
+  <section class="hero-vista relative overflow-hidden">
+    <Vista />
+    <div class="wrap relative z-10 pt-[9vh] sm:pt-[12vh] pb-[38vh] sm:pb-[34vh]">
+      <div class="max-w-2xl">
+        <p class="hero-step eyebrow-sky">{profile.location} · {profile.availability}</p>
         <h1 class="hero-step display mt-4" style="font-size: var(--fs-display);">
           {profile.name}
         </h1>
-        <p class="hero-step text-accent-text mono text-[0.95rem] mt-4">{profile.headline}</p>
-        <p class="hero-step text-muted max-w-xl mt-6">{profile.shortBio}</p>
+        <p class="hero-step hero-headline text-[1.05rem] sm:text-[1.15rem] font-medium mt-4">
+          {profile.headline}
+        </p>
+        <p class="hero-step hero-bio max-w-xl mt-5">{profile.shortBio}</p>
         <div class="hero-step flex flex-wrap gap-3 mt-9">
           <a
             href={withBase('/projects')}
-            class="mono text-[0.85rem] bg-accent text-accent-ink rounded px-5 py-3 hover:opacity-90 transition-opacity duration-150"
+            class="mono text-[0.85rem] bg-accent text-accent-ink rounded px-5 py-3 hover:opacity-90 transition-opacity duration-150 shadow-lg"
           >
-            View projects
+            See the inventions
           </a>
           {
             profile.resumeFile ? (
               <a
                 href={withBase(profile.resumeFile)}
-                class="mono text-[0.85rem] border border-line-strong text-text rounded px-5 py-3 hover:border-accent hover:text-accent-text transition-colors duration-150"
+                class="hero-btn-quiet mono text-[0.85rem] rounded px-5 py-3 transition-colors duration-150"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -68,27 +76,49 @@ const jsonLd = {
             ) : (
               <a
                 href={withBase('/about')}
-                class="mono text-[0.85rem] border border-line-strong text-text rounded px-5 py-3 hover:border-accent hover:text-accent-text transition-colors duration-150"
+                class="hero-btn-quiet mono text-[0.85rem] rounded px-5 py-3 transition-colors duration-150"
               >
-                About me
+                Meet the inventor
               </a>
             )
           }
         </div>
       </div>
-      <div class="hidden sm:block">
-        <HeroFigure featured={heroProjects} />
-      </div>
     </div>
   </section>
 
+  {
+    heroModel && (
+      <section class="wrap py-16 sm:py-20">
+        <SectionHead eyebrow="On the bench today" title="The current build" />
+        <div
+          class="model-host border hairline rounded overflow-hidden relative bg-panel"
+          data-model-host
+          data-src={withBase('/media/models/hero.glb')}
+          data-alt="The invention currently on the bench, in 3D"
+        >
+          <div class="relative flex flex-col items-center justify-center gap-3 min-h-[340px] p-6 text-center">
+            <button
+              type="button"
+              data-load-model
+              class="mono text-[0.8rem] bg-accent text-accent-ink rounded px-4 py-2.5 hover:opacity-90 transition-opacity duration-150"
+            >
+              Power it on
+            </button>
+            <p class="mono text-[0.68rem] text-muted">powers on when you tap · orbit with drag or arrow keys</p>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
   <!-- Selected work -->
-  <section class="wrap py-16 sm:py-20">
+  <section class:list={['wrap py-16 sm:py-20', heroModel && 'border-t hairline']}>
     <SectionHead
-      eyebrow="Fig. 1 · detail views"
-      title="Selected work"
+      eyebrow="Fresh from the bench"
+      title="The inventions"
       moreHref={withBase('/projects')}
-      moreLabel="All projects"
+      moreLabel="Walk the floor"
     />
     {
       heroProjects.length > 0 ? (
@@ -99,8 +129,8 @@ const jsonLd = {
         </div>
       ) : (
         <EmptyState
-          heading="Drafting in progress"
-          message="Case studies are being written up. The full project index will appear here."
+          heading="The bench is clear"
+          message="New inventions are on the drawing board. The first machines will be wheeled out here."
         />
       )
     }
@@ -111,7 +141,7 @@ const jsonLd = {
     skillGroups.length > 0 && (
       <section class="border-t hairline">
         <div class="wrap py-16 sm:py-20">
-          <SectionHead eyebrow="Bill of materials" title="Skills" />
+          <SectionHead eyebrow="Tools by trade" title="The workshop wall" />
           <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {skillGroups.map((g) => (
               <div class="reveal">
@@ -139,10 +169,10 @@ const jsonLd = {
       <section class="border-t hairline">
         <div class="wrap py-16 sm:py-20">
           <SectionHead
-            eyebrow="Verified documents"
-            title="Certificates"
+            eyebrow="Stamped and mounted"
+            title="The proving ground"
             moreHref={withBase('/certificates')}
-            moreLabel="All certificates"
+            moreLabel="See the wall"
           />
           <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {homeCerts.slice(0, 3).map((c) => (
@@ -159,7 +189,7 @@ const jsonLd = {
     testimonials.length > 0 && (
       <section class="border-t hairline">
         <div class="wrap py-16 sm:py-20">
-          <SectionHead eyebrow="Inspection notes" title="What people say" />
+          <SectionHead eyebrow="Inspection notes" title="What the inspectors say" />
           <div class="grid md:grid-cols-2 gap-6 max-w-4xl">
             {testimonials.map((t) => (
               <figure class="reveal border-l-2 border-accent pl-5 py-1">
@@ -202,3 +232,8 @@ const jsonLd = {
     </div>
   </section>
 </BaseLayout>
+
+<script>
+  import { wireProjectMedia } from '../lib/media-wire';
+  document.addEventListener('astro:page-load', () => wireProjectMedia());
+</script>

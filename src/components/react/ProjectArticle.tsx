@@ -36,7 +36,10 @@ export default function ProjectArticle({ project: p, bodyHtml }: ProjectArticleP
           {p.category} · <span className="mono-nums normal-case">{dateSpan(p.startDate, p.endDate)}</span> ·{' '}
           {STATUS_LABEL[p.status]}
         </p>
-        <h1 className="display text-text mt-3" style={{ fontSize: 'var(--fs-display)' }}>
+        <h1
+          className="display text-text mt-3"
+          style={{ fontSize: 'var(--fs-display)', viewTransitionName: `ptitle-${p.id}` }}
+        >
           {p.title}
         </h1>
         <p className="text-muted text-lg mt-4">{p.tagline}</p>
@@ -52,11 +55,11 @@ export default function ProjectArticle({ project: p, bodyHtml }: ProjectArticleP
           {/* each cell draws right+bottom hairlines; -1px margins collapse them into the frame */}
           <dl className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 -mr-px -mb-px">
             {p.metrics.map((m) => (
-              <div key={m.label} className="p-4 border-r border-b hairline">
+              <div key={m.label} className="p-4 border-r border-b hairline flex flex-col">
                 <dt className="mono text-[0.68rem] text-muted uppercase tracking-widest">
                   {m.label}
                 </dt>
-                <dd className="mono-nums text-text text-[1.05rem] mt-1">{m.value}</dd>
+                <dd className="mono-nums text-text text-[1.05rem] mt-auto pt-1">{m.value}</dd>
               </div>
             ))}
           </dl>
@@ -88,6 +91,7 @@ export default function ProjectArticle({ project: p, bodyHtml }: ProjectArticleP
           width={1200}
           height={800}
           className="w-full h-auto block"
+          style={{ viewTransitionName: `cover-${p.id}` }}
         />
       </figure>
 
@@ -165,9 +169,9 @@ export default function ProjectArticle({ project: p, bodyHtml }: ProjectArticleP
                     data-load-model
                     className="mono text-[0.8rem] bg-accent text-accent-ink rounded px-4 py-2.5 hover:opacity-90 transition-opacity duration-150"
                   >
-                    Load 3D model
+                    Power it on
                   </button>
-                  <p className="mono text-[0.68rem] text-muted">loads on tap · orbit with drag</p>
+                  <p className="mono text-[0.68rem] text-muted">powers on when you tap · orbit with drag or arrow keys</p>
                 </div>
               </div>
             ))}

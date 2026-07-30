@@ -20,14 +20,13 @@ const isActive = (href: string) => {
     <a
       href={withBase('/')}
       class="mono font-medium tracking-widest text-text hover:text-accent-text transition-colors duration-150"
-      aria-label="Taha Mohammed — home"
     >
       TAHA<span class="text-accent">·</span>MOHAMMED
     </a>
 
-    <div class="flex items-center gap-5">
+    <div class="flex items-center gap-3 sm:gap-5">
       <nav aria-label="Main">
-        <ul class="flex items-center gap-x-5 gap-y-1 flex-wrap">
+        <ul class="flex items-center gap-x-3 sm:gap-x-5 gap-y-1 flex-wrap text-[0.72rem] sm:text-[0.8125rem]">
           {
             links.map((l) => (
               <li>
@@ -99,24 +98,33 @@ const isActive = (href: string) => {
 </style>
 
 <script>
-  const btn = document.getElementById('theme-toggle');
-  const setLabel = () => {
-    const cur = document.documentElement.getAttribute('data-theme');
-    btn?.setAttribute(
-      'aria-label',
-      cur === 'dark' ? 'Switch to light theme' : 'Switch to dark theme',
-    );
-  };
-  setLabel();
-  btn?.addEventListener('click', () => {
-    const next =
-      document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
-    try {
-      localStorage.setItem('theme', next);
-    } catch {
-      /* private mode: theme just won't persist */
-    }
+  function initThemeToggle() {
+    const btn = document.getElementById('theme-toggle');
+    if (!btn || btn.dataset.wired) return;
+    btn.dataset.wired = '1';
+    const setLabel = () => {
+      const cur = document.documentElement.getAttribute('data-theme');
+      btn.setAttribute(
+        'aria-label',
+        cur === 'dark' ? 'Switch to light theme' : 'Switch to dark theme',
+      );
+    };
     setLabel();
-  });
+    btn.addEventListener('click', () => {
+      const next =
+        document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      // day/night is a sky animation, not a stylesheet swap: the .theme-turn
+      // class arms the transitions, removed once the sky has settled
+      document.documentElement.classList.add('theme-turn');
+      document.documentElement.setAttribute('data-theme', next);
+      try {
+        localStorage.setItem('theme', next);
+      } catch {
+        /* private mode: theme just won't persist */
+      }
+      setLabel();
+      window.setTimeout(() => document.documentElement.classList.remove('theme-turn'), 900);
+    });
+  }
+  document.addEventListener('astro:page-load', initThemeToggle);
 </script>

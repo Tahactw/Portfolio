@@ -29,7 +29,7 @@ const jsonLd = {
   <div class="wrap py-14 sm:py-20">
     <div class="grid lg:grid-cols-[2fr_1fr] gap-x-16 gap-y-12">
       <div>
-        <p class="eyebrow">Personnel record</p>
+        <p class="eyebrow">The inventor</p>
         <h1 class="h2 mt-2" style="font-size: var(--fs-h2);">About</h1>
 
         {/* print-only header so the printed page reads as a resume */}
@@ -44,7 +44,7 @@ const jsonLd = {
         {
           experience.length > 0 && (
             <section class="mt-14">
-              <h2 class="eyebrow">Experience</h2>
+              <h2 class="eyebrow">The route so far — work</h2>
               <ol class="mt-6 space-y-10 border-l hairline pl-6">
                 {experience.map((e) => (
                   <li class="relative">
@@ -77,7 +77,7 @@ const jsonLd = {
         {
           education.length > 0 && (
             <section class="mt-14">
-              <h2 class="eyebrow">Education</h2>
+              <h2 class="eyebrow">The route so far — school</h2>
               <ol class="mt-6 space-y-10 border-l hairline pl-6">
                 {education.map((e) => (
                   <li class="relative">
@@ -109,7 +109,7 @@ const jsonLd = {
         {
           skillGroups.length > 0 && (
             <section class="mt-14">
-              <h2 class="eyebrow">Skills</h2>
+              <h2 class="eyebrow">The toolbox</h2>
               <div class="grid sm:grid-cols-2 gap-x-10 gap-y-8 mt-6">
                 {skillGroups.map((g) => (
                   <div>

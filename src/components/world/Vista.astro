@@ -1,0 +1,524 @@
+---
+/**
+ * The establishing shot: sky, sun/moon, clouds, three skyline bands with
+ * fog between them, warm windows, smoke, grain. Generated at build time
+ * from a fixed seed — identical on every load, zero client JavaScript.
+ *
+ * Colour lives entirely in CSS custom properties, so day/night is a token
+ * swap and the future sky animation tweens variables, not markup.
+ *
+ * Decorative by contract: aria-hidden, no focusable content, text never
+ * lives in here.
+ */
+import { existsSync } from 'node:fs';
+import { clouds, farBand, midBand, nearBand, stars } from '../../world/generate';
+import { withBase } from '../../lib/paths';
+
+interface Props {
+  seed?: number;
+}
+const { seed = 20260730 } = Astro.props;
+
+/* B4 asset override: drop public/media/textures/grain.png into the repo and
+   the generated noise is replaced by your texture, silently. */
+const grainFile = existsSync('public/media/textures/grain.png');
+const grainHref = withBase('/media/textures/grain.png');
+
+const W = 1600;
+const H = 900;
+const far = farBand(seed + 1, W, 640);
+const mid = midBand(seed + 2, W, 700);
+const near = nearBand(seed + 3, W, H);
+const starField = stars(seed + 4, W, 440);
+const cloudSheets = clouds(seed + 5);
+---
+
+<div class="vista" aria-hidden="true">
+  <svg
+    viewBox={`0 0 ${W} ${H}`}
+    preserveAspectRatio="xMidYMax slice"
+    focusable="false"
+  >
+    <defs>
+      <linearGradient id="v-sky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="var(--w-sky-top)"></stop>
+        <stop offset="0.55" stop-color="var(--w-sky-mid)"></stop>
+        <stop offset="0.78" stop-color="var(--w-sky-low)"></stop>
+        <stop offset="1" stop-color="var(--w-sky-low)"></stop>
+      </linearGradient>
+      <radialGradient id="v-halo">
+        <stop offset="0" stop-color="var(--w-halo-c)" stop-opacity="var(--w-halo-a)"></stop>
+        <stop offset="1" stop-color="var(--w-halo-c)" stop-opacity="0"></stop>
+      </radialGradient>
+      <linearGradient id="v-g-far" x1="0" y1="1" x2="0.75" y2="0">
+        <stop offset="0.3" stop-color="var(--w-far)"></stop>
+        <stop offset="1" stop-color="var(--w-far-lit)"></stop>
+      </linearGradient>
+      <linearGradient id="v-g-mid" x1="0" y1="1" x2="0.75" y2="0">
+        <stop offset="0.3" stop-color="var(--w-mid)"></stop>
+        <stop offset="1" stop-color="var(--w-mid-lit)"></stop>
+      </linearGradient>
+      <linearGradient id="v-g-near" x1="0" y1="1" x2="0.75" y2="0">
+        <stop offset="0.35" stop-color="var(--w-near)"></stop>
+        <stop offset="1" stop-color="var(--w-near-lit)"></stop>
+      </linearGradient>
+      <linearGradient id="v-g-tree" x1="0" y1="1" x2="0.7" y2="0">
+        <stop offset="0.35" stop-color="var(--w-tree)"></stop>
+        <stop offset="1" stop-color="var(--w-tree-lit)"></stop>
+      </linearGradient>
+      <linearGradient id="v-g-tree-near" x1="0" y1="1" x2="0.7" y2="0">
+        <stop offset="0.35" stop-color="var(--w-tree-near)"></stop>
+        <stop offset="1" stop-color="var(--w-tree-near-lit)"></stop>
+      </linearGradient>
+      <radialGradient id="v-wglow">
+        <stop offset="0" stop-color="#ffc466" stop-opacity="0.5"></stop>
+        <stop offset="0.55" stop-color="#ffc466" stop-opacity="0.18"></stop>
+        <stop offset="1" stop-color="#ffc466" stop-opacity="0"></stop>
+      </radialGradient>
+      <radialGradient id="v-lampglow">
+        <stop offset="0" stop-color="#ffc466" stop-opacity="0.34"></stop>
+        <stop offset="1" stop-color="#ffc466" stop-opacity="0"></stop>
+      </radialGradient>
+      <linearGradient id="v-fog" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="var(--w-sky-low)" stop-opacity="0"></stop>
+        <stop offset="1" stop-color="var(--w-sky-low)" stop-opacity="0.62"></stop>
+      </linearGradient>
+      <linearGradient id="v-fog2" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="var(--w-sky-low)" stop-opacity="0"></stop>
+        <stop offset="1" stop-color="var(--w-sky-low)" stop-opacity="0.42"></stop>
+      </linearGradient>
+      <mask id="v-moon-mask">
+        <circle cx="1188" cy="168" r="40" fill="#fff"></circle>
+        <circle cx="1203" cy="156" r="36" fill="#000"></circle>
+      </mask>
+      {grainFile && (
+        <pattern id="v-grainimg" patternUnits="userSpaceOnUse" width="512" height="512">
+          <image href={grainHref} width="512" height="512" />
+        </pattern>
+      )}
+      <filter id="v-grain" x="0" y="0" width="100%" height="100%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" stitchTiles="stitch"></feTurbulence>
+        <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0.6 0.6 0.6 0 0"></feColorMatrix>
+      </filter>
+    </defs>
+
+    <!-- sky -->
+    <rect width={W} height={H} fill="url(#v-sky)"></rect>
+
+    <!-- celestial layer: stars, sun/moon, clouds -->
+    <g class="w-par w-par-sky">
+      <g class="w-stars" set:html={starField} />
+      <g class="w-sun">
+        <circle cx="1188" cy="176" r="170" fill="url(#v-halo)"></circle>
+        <circle cx="1188" cy="176" r="54" fill="#fdfcf2"></circle>
+      </g>
+      <g class="w-moon">
+        <circle cx="1188" cy="168" r="120" fill="url(#v-halo)"></circle>
+        <circle cx="1188" cy="168" r="40" fill="#e9f0f3" mask="url(#v-moon-mask)"></circle>
+      </g>
+      <g set:html={cloudSheets} />
+    </g>
+
+    <!-- far skyline + its fog -->
+    <g class="w-par w-par-far">
+      <g class="w-layer w-layer-far">
+        <g class="w-band w-band-far" set:html={far.svg} />
+        <rect x="-40" y="470" width={W + 80} height="172" fill="url(#v-fog)" class="w-fog1"></rect>
+      </g>
+    </g>
+
+    <!-- mid town + its fog -->
+    <g class="w-par w-par-mid">
+      <g class="w-layer w-layer-mid">
+        <g class="w-band w-band-mid" set:html={mid.svg} />
+        <rect x="-40" y="560" width={W + 80} height="142" fill="url(#v-fog2)" class="w-fog2"></rect>
+      </g>
+    </g>
+
+    <!-- near band: the workshop, the trees, the gantry -->
+    <g class="w-par w-par-near">
+      <g class="w-layer w-layer-near">
+        <g class="w-band w-band-near" set:html={near.svg} />
+      </g>
+    </g>
+
+    <!-- grain over everything: supplied texture wins, generated noise otherwise -->
+    {
+      grainFile ? (
+        <rect width={W} height={H} fill="url(#v-grainimg)" class="w-grain" />
+      ) : (
+        <rect width={W} height={H} filter="url(#v-grain)" class="w-grain" />
+      )
+    }
+  </svg>
+</div>
+
+<style is:global>
+  .vista {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .vista svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* Bands paint with a per-form gradient, lit from the sun/moon side.
+     fill inherits from the group, so windows/roofs override by class. */
+  .vista .w-band-far {
+    color: var(--w-far);
+    fill: url(#v-g-far);
+  }
+  .vista .w-band-mid {
+    color: var(--w-mid);
+    fill: url(#v-g-mid);
+  }
+  .vista .w-band-near {
+    color: var(--w-near);
+    fill: url(#v-g-near);
+  }
+  .vista .w-band .w-stroke {
+    fill: none;
+    stroke: currentColor;
+  }
+  .vista .w-fog1 {
+    opacity: var(--w-fog-a);
+  }
+  .vista .w-fog2 {
+    opacity: var(--w-fog-b);
+  }
+
+  /* roof planes catch the sky, articulating the silhouette */
+  .vista .w-band-mid .w-roof {
+    fill: var(--w-mid-face);
+  }
+  .vista .w-band-far .w-roof {
+    fill: var(--w-far-lit);
+  }
+  .vista .w-band-near .w-roof {
+    fill: var(--w-near-lit);
+  }
+  /* small machine indicator lights: on at night, off by day */
+  .vista .w-ind {
+    fill: var(--w-lamp);
+    opacity: var(--w-glow-alpha);
+  }
+
+  /* trees keep their own greens per depth, shaded like everything else */
+  .vista .w-band .w-tree {
+    fill: url(#v-g-tree);
+  }
+  .vista .w-band .w-tree-near {
+    fill: url(#v-g-tree-near);
+  }
+
+  /* windows: warm at night, dark glass by day */
+  .vista .w-window {
+    fill: var(--w-window);
+    opacity: var(--w-window-alpha);
+  }
+  .vista .w-daylit {
+    fill: var(--w-window-lit);
+    opacity: var(--w-daylit-alpha);
+  }
+  .vista .w-glow {
+    opacity: var(--w-glow-alpha);
+  }
+  .vista .w-lamp-bulb {
+    fill: var(--w-lamp);
+    opacity: var(--w-glow-alpha);
+  }
+  .vista .w-flicker {
+    animation: w-flicker 11s ease-in-out infinite;
+  }
+  .vista .w-flicker:nth-of-type(odd) {
+    animation-duration: 17s;
+    animation-delay: 4s;
+  }
+  @keyframes w-flicker {
+    0%, 100% { opacity: var(--w-window-alpha); }
+    46% { opacity: var(--w-window-alpha); }
+    48% { opacity: 0.35; }
+    50% { opacity: var(--w-window-alpha); }
+    83% { opacity: var(--w-window-alpha); }
+    85% { opacity: 0.5; }
+    87% { opacity: var(--w-window-alpha); }
+  }
+
+  /* celestial bodies swap with the theme: they rise and set, not crossfade */
+  .vista .w-sun {
+    opacity: var(--w-sun-alpha);
+    transform: translateY(var(--w-sun-shift, 0px));
+  }
+  .vista .w-moon {
+    opacity: var(--w-moon-alpha);
+    transform: translateY(var(--w-moon-shift, 0px));
+  }
+
+  /* ---- day/night turn: armed briefly by the toggle, then disarmed.
+     The sky tweens, the sun/moon arc, windows catch alight in waves. */
+  html.theme-turn .vista .w-sun,
+  html.theme-turn .vista .w-moon {
+    transition:
+      transform var(--dur-swing) var(--spring-swing),
+      opacity 500ms ease;
+  }
+  html.theme-turn .vista stop {
+    transition: stop-color var(--dur-swing) ease;
+  }
+  html.theme-turn .vista .w-band,
+  html.theme-turn .vista .w-roof,
+  html.theme-turn .vista .w-fog1,
+  html.theme-turn .vista .w-fog2,
+  html.theme-turn .vista .w-stars,
+  html.theme-turn .vista .w-cloud {
+    transition: opacity var(--dur-swing) ease, fill var(--dur-swing) ease;
+  }
+  html.theme-turn .vista .w-window,
+  html.theme-turn .vista .w-glow {
+    transition: fill 380ms ease, opacity 380ms ease;
+  }
+  html.theme-turn .vista .w-window:nth-of-type(3n) { transition-delay: 120ms; }
+  html.theme-turn .vista .w-window:nth-of-type(3n + 1) { transition-delay: 300ms; }
+  html.theme-turn .vista .w-window:nth-of-type(3n + 2) { transition-delay: 480ms; }
+  html.theme-turn .vista .w-glow:nth-of-type(3n) { transition-delay: 120ms; }
+  html.theme-turn .vista .w-glow:nth-of-type(3n + 1) { transition-delay: 300ms; }
+  html.theme-turn .vista .w-glow:nth-of-type(3n + 2) { transition-delay: 480ms; }
+  html.theme-turn body {
+    transition: background-color var(--dur-swing) ease, color var(--dur-swing) ease;
+  }
+
+  /* ---- first-visit opening: the world assembles far to near ---- */
+  html.v-intro .vista .w-layer-far {
+    animation: v-band-in 650ms var(--spring-swing) 80ms both;
+  }
+  html.v-intro .vista .w-layer-mid {
+    animation: v-band-in 650ms var(--spring-swing) 260ms both;
+  }
+  html.v-intro .vista .w-layer-near {
+    animation: v-band-in 700ms var(--spring-swing) 440ms both;
+  }
+  @keyframes v-band-in {
+    from {
+      opacity: 0;
+      transform: translateY(64px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  html.v-intro .vista .w-window,
+  html.v-intro .vista .w-glow {
+    animation: v-win-in 360ms ease-out both;
+    animation-delay: 1050ms;
+  }
+  html.v-intro .vista .w-window:nth-of-type(3n),
+  html.v-intro .vista .w-glow:nth-of-type(3n) { animation-delay: 1200ms; }
+  html.v-intro .vista .w-window:nth-of-type(3n + 2),
+  html.v-intro .vista .w-glow:nth-of-type(3n + 2) { animation-delay: 1380ms; }
+  @keyframes v-win-in {
+    from { opacity: 0; }
+  }
+  html.v-intro .hero-step { animation-delay: 900ms; }
+  html.v-intro .hero-step:nth-child(2) { animation-delay: 980ms; }
+  html.v-intro .hero-step:nth-child(3) { animation-delay: 1060ms; }
+  html.v-intro .hero-step:nth-child(4) { animation-delay: 1140ms; }
+  html.v-intro .hero-step:nth-child(5) { animation-delay: 1220ms; }
+  /* any input skips straight to the settled state */
+  html.v-intro-skip .vista .w-layer,
+  html.v-intro-skip .vista .w-window,
+  html.v-intro-skip .vista .w-glow,
+  html.v-intro-skip .hero-step {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+  }
+  .vista .w-star {
+    fill: #eaf2f5;
+  }
+  .vista .w-stars {
+    opacity: var(--w-star-alpha);
+  }
+  .vista .w-twinkle {
+    animation: w-twinkle 7s ease-in-out infinite;
+  }
+  @keyframes w-twinkle {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 0.2; }
+  }
+
+  .vista .w-cloud {
+    fill: var(--w-cloud);
+    opacity: var(--w-cloud-alpha);
+  }
+  .vista .w-cloud-drift-a {
+    animation: w-drift-a 160s linear infinite;
+  }
+  .vista .w-cloud-drift-b {
+    animation: w-drift-b 220s linear infinite;
+  }
+  @keyframes w-drift-a {
+    from { transform: translateX(0); }
+    50% { transform: translateX(60px); }
+    to { transform: translateX(0); }
+  }
+  @keyframes w-drift-b {
+    from { transform: translateX(0); }
+    50% { transform: translateX(-80px); }
+    to { transform: translateX(0); }
+  }
+
+  .vista .w-beacon {
+    fill: var(--w-lamp);
+    animation: w-blink 6s ease-in-out infinite;
+  }
+  @keyframes w-blink {
+    0%, 100% { opacity: 0.9; }
+    8% { opacity: 0.15; }
+    16% { opacity: 0.9; }
+  }
+
+  .vista .w-smoke {
+    fill: var(--w-smoke);
+    animation: w-smoke-rise 12s linear infinite;
+  }
+  @keyframes w-smoke-rise {
+    0% { transform: translateY(0) scale(0.7); opacity: 0; }
+    12% { opacity: 1; }
+    80% { opacity: 0.25; }
+    100% { transform: translateY(-90px) scale(1.9); opacity: 0; }
+  }
+
+  .vista .w-grain {
+    opacity: 0.07;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .vista .w-flicker,
+    .vista .w-twinkle,
+    .vista .w-cloud-drift-a,
+    .vista .w-cloud-drift-b,
+    .vista .w-beacon,
+    .vista .w-smoke {
+      animation: none !important;
+    }
+    .vista .w-smoke {
+      opacity: 0.5;
+      transform: translateY(-24px) scale(1.2);
+    }
+  }
+</style>
+
+<script>
+  /**
+   * World behaviour: first-visit opening (skippable, remembered) and the
+   * parallax drift — cursor and scroll move the bands at depth-scaled
+   * rates. Fine pointers and motion-tolerant users only; everyone else
+   * gets the still painting.
+   */
+  const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const FINE = window.matchMedia('(hover: hover) and (pointer: fine)');
+
+  function playIntroOnce() {
+    if (REDUCED.matches) return;
+    let seen = null;
+    try {
+      seen = localStorage.getItem('v-intro-seen');
+    } catch {
+      /* storage off: play it, harmlessly, every time */
+    }
+    if (seen) return;
+    try {
+      localStorage.setItem('v-intro-seen', '1');
+    } catch {
+      /* ignore */
+    }
+    const html = document.documentElement;
+    html.classList.add('v-intro');
+    const skip = () => html.classList.add('v-intro-skip');
+    window.addEventListener('pointerdown', skip, { once: true, passive: true });
+    window.addEventListener('keydown', skip, { once: true });
+    window.addEventListener('wheel', skip, { once: true, passive: true });
+    window.setTimeout(() => {
+      html.classList.remove('v-intro', 'v-intro-skip');
+      window.removeEventListener('pointerdown', skip);
+      window.removeEventListener('keydown', skip);
+      window.removeEventListener('wheel', skip);
+    }, 2100);
+  }
+
+  function initParallax() {
+    const vista = document.querySelector<HTMLElement>('.vista');
+    if (!vista || vista.dataset.wired || REDUCED.matches) return;
+    vista.dataset.wired = '1';
+
+    const layers: [string, number, number][] = [
+      // selector, cursor factor (px), scroll factor
+      ['.w-par-sky', 4, 0.3],
+      ['.w-par-far', 8, 0.22],
+      ['.w-par-mid', 14, 0.12],
+      ['.w-par-near', 22, 0.04],
+    ];
+    const els = layers
+      .map(([sel, cf, sf]) => ({ el: vista.querySelector<SVGGElement>(sel), cf, sf }))
+      .filter((l): l is { el: SVGGElement; cf: number; sf: number } => !!l.el);
+    if (els.length === 0) return;
+
+    let targetX = 0;
+    let curX = 0;
+    let scrollY = 0;
+    let raf = 0;
+    let heroVisible = true;
+
+    const tick = () => {
+      raf = 0;
+      curX += (targetX - curX) * 0.07;
+      for (const { el, cf, sf } of els) {
+        el.style.transform = `translate3d(${(curX * cf).toFixed(2)}px, ${(scrollY * sf).toFixed(1)}px, 0)`;
+      }
+      if (Math.abs(targetX - curX) > 0.002) schedule();
+    };
+    const schedule = () => {
+      if (!raf) raf = requestAnimationFrame(tick);
+    };
+
+    if (FINE.matches) {
+      window.addEventListener(
+        'pointermove',
+        (e) => {
+          if (!heroVisible) return;
+          targetX = e.clientX / window.innerWidth - 0.5;
+          schedule();
+        },
+        { passive: true },
+      );
+    }
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!heroVisible) return;
+        scrollY = window.scrollY;
+        schedule();
+      },
+      { passive: true },
+    );
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) heroVisible = e.isIntersecting;
+        if (heroVisible) schedule();
+      },
+      { rootMargin: '80px' },
+    );
+    io.observe(vista);
+    schedule();
+  }
+
+  document.addEventListener('astro:page-load', () => {
+    playIntroOnce();
+    initParallax();
+  });
+</script>

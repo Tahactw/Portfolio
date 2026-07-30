@@ -13,11 +13,11 @@ const x = profile.socials.x;
   description={`Get in touch with ${profile.name} — ${profile.availability}.`}
 >
   <div class="wrap py-14 sm:py-20 max-w-3xl">
-    <p class="eyebrow">Signal input</p>
+    <p class="eyebrow">The workshop door</p>
     <h1 class="h2 mt-2" style="font-size: var(--fs-h2);">Contact</h1>
     <p class="text-muted mt-3 max-w-xl">
-      Recruiting, collaborating, or just want to talk shop about a mechanism? I read everything
-      that lands here. {profile.availability}.
+      The light's on and the door is open. Recruiting, collaborating, or just want to talk shop
+      about a mechanism — I read everything that lands here. {profile.availability}.
     </p>
     <hr class="hairline border-t mt-6 mb-10" />
 
@@ -137,8 +137,10 @@ const x = profile.socials.x;
 <script>
   // Progressive enhancement over the plain Formspree POST: inline validation
   // and an in-page status line instead of a full navigation.
+  function initContactForm() {
   const form = document.getElementById('contact-form') as HTMLFormElement | null;
-  if (form) {
+  if (form && !form.dataset.wired) {
+    form.dataset.wired = '1';
     const status = document.getElementById('cf-status');
     const fields = [
       { input: 'cf-name', err: 'cf-name-err' },
@@ -180,4 +182,6 @@ const x = profile.socials.x;
       }
     });
   }
+  }
+  document.addEventListener('astro:page-load', initContactForm);
 </script>

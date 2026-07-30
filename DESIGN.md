@@ -1,86 +1,96 @@
 # Design & engineering decisions
 
-A record of the judgement calls in this build — what was decided, and why — so future changes
-can be made with the reasoning in hand rather than against it.
+A record of the judgement calls in this build — what was decided and why — so future changes can
+be made with the reasoning in hand rather than against it. (v2: the world build. v1 was the
+engineering-drawing system; its bones — tokens, type, accessibility discipline — carry forward.)
 
 ## The one idea
 
-**The portfolio is set like an engineering drawing.** Hairline rules structure every page the
-way border lines structure a drawing sheet; labels and data are set in IBM Plex Mono like
-drawing annotations; dates and metrics use tabular figures; the footer is a title block
-(TITLE / DRAWN / REV / SCALE); and the hero's right half is an exploded view of a robot joint
-whose numbered balloons are the links to the three featured projects — the figure is
-navigation, not wallpaper. Everything else is deliberately quiet so this one idea reads.
+**The site is a place: an invented maker-district, seen from the owner's terrace.** The home page
+opens on a procedurally generated skyline of workshops, sawtooth factories, silos, water tanks
+and a portal gantry holding a crate mid-lift — generated at build time from a fixed seed, as pure
+SVG, with zero client JavaScript required to *see* it. Warm windows in a cold teal night say
+"someone is still building." Sections are places in that world (the invention floor, the workshop
+wall, the proving ground, the workshop door), the copy walks you around it, and machines — the
+project cards — wake up when approached.
 
-The risk taken: the drawing conceit could tip into theme-park engineering if it spread. It is
-therefore confined to structure (rules, mono annotations, the title block) and a single figure,
-drawn with hairline strokes in the text colour, animated once on load and never again. The known
-cost: the hero figure is hand-drawn SVG, so its balloons map to *featured slots 1–3*, not to
-specific projects — mark different projects as featured and the balloons follow automatically,
-but the drawing itself doesn't change.
+## The world, technically
 
-## Palette
+- **Depth = fog.** Three skyline bands (far/mid/near) plus sky and celestial layers; each band's
+  colour steps toward the sky value, and gradient veils sit between bands. Every form is shaded
+  by a per-shape gradient lit from the sun/moon side; a grain overlay keeps it painted, not
+  vector-crisp.
+- **Seeded generation.** `src/world/parts.ts` is the parts kit (workshop, rowhouse, sawtooth,
+  tower, silo, water tank, mast, tree, small gantry, roof arm); `src/world/generate.ts` composes
+  bands with a fixed-seed RNG — layout varies along the band but is identical on every build.
+  The near band is composed, not random: terrace, owner's workshop with smoking chimney, trees,
+  lamp post, and the big gantry.
+- **Day/night are the two themes** — the same town at two hours. Dark (night) is default. The
+  toggle is a sky animation: sun and moon rise/set on the swing spring, gradients tween, windows
+  catch alight in three staggered waves. All colour lives in CSS custom properties, so the
+  animation tweens tokens, never markup.
+- **Ambient life:** chimney smoke, three flickering windows, one blinking mast beacon, drifting
+  clouds, twinkling stars — all slow, peripheral, and killed by `prefers-reduced-motion`, which
+  gets the world as a still painting.
+- **Parallax:** cursor drift and scroll separation per band (transform-only, rAF, paused
+  off-screen). The first visit gets a sub-2s assembly (bands far→near, windows light, title
+  resolves), skippable on any input, remembered in localStorage.
 
-| Token | Dark (default) | Light | Job |
+## Palette (contrast verified per pair)
+
+| Token | Night (default) | Day | Job |
 |---|---|---|---|
-| `--c-ink` | `#0F1216` | `#F6F7F8` | page |
-| `--c-panel` | `#151A20` | `#FFFFFF` | raised surfaces |
-| `--c-line` | `#262D36` | `#D8DDE3` | hairline rules (decorative) |
-| `--c-line-strong` | `#626D7B` | `#808B97` | interactive borders (≥3:1) |
-| `--c-text` | `#E7EBEF` | `#1A2027` | text |
-| `--c-muted` | `#9BA6B2` | `#5B6673` | secondary text (≥4.5:1) |
-| `--c-accent` | `#E4A339` | `#B57B1E` (`#8A5C14` as text) | **one job: marks anything that responds to you** — links, buttons, focus, active filters |
+| page / sky | `#0B1E28` (`#06141C→#16394A` gradient) | `#C5ECF0` (`#7CD6E4→#C5ECF0`) | the world's air |
+| panel | `#142E3A` | `#FBF8EF` | plaques, cards, content |
+| text | `#EAF2F5` | `#1E2E36` | ≥12:1 on panels |
+| muted | `#9DB4BF` | `#4E6470` | ≥4.5:1 everywhere it appears |
+| accent (the hero colour) | `#F0A63C` | `#B57B1E` UI / `#7A4E0B` as text | **one job: anything that asks to be pressed** — and the warm windows share its family |
+| bands far/mid/near | `#1A3F51 / #143243 / #0A1A22` (+lit variants) | `#8FCDD6 / #6A9DAA / #3E5D6B` | aerial perspective |
 
-Light mode is drafting vellum with dark graphite ink — designed, not inverted; the amber darkens
-where it carries text so contrast holds.
+Warm colour is rationed by design: windows, lamp pools, one beacon, and the actions.
 
-## Type
+## Motion: three springs, machines with mass
 
-Two families, three roles. **Archivo** (variable, self-hosted, latin subset): expanded width
-~112% at semibold for display — the flavour of DIN plate lettering on machine nameplates —
-and normal width for body text at 17px. **IBM Plex Mono** for the utility layer: labels, dates,
-dimensions, metrics, code. Scale is a perfect fourth (1.333) on the 17px body, display clamped
-`2.4rem → 4rem`.
+CSS `linear()` approximations, used everywhere and nowhere else:
+`--spring-snap` (~200ms, small UI), `--spring-pop` (~420ms, cards/reveals),
+`--spring-swing` (~700ms, camera/page/sky). Page transitions are camera moves: Astro view
+transitions with shared cover/title elements — a card *becomes* its page. Filtering is FLIP:
+departing machines power down, survivors travel, arrivals rise. Never more than two things
+animate at once; the ambient layer is exempt and slow.
 
-## Motion
+## Machines (the cards)
 
-Tuned like a servo: fast approach, clean settle, no overshoot. Two easings as tokens
-(`--ease-settle`, `--ease-brisk`), three durations (140/240/420ms). One page-load sequence
-(hero, 5 steps × 60ms), one scroll-reveal pattern (fade-rise 14px, 40ms stagger, fires once),
-the hero figure plots its strokes once. `prefers-reduced-motion` collapses all of it to fast
-opacity only.
+Physical housings: thickness via a machined bottom edge, powered-down covers (desaturated) that
+wake on hover/focus — lift, tilt toward the cursor (fine pointers only), indicator LED lights,
+one technical detail (the first real metric) slides out of the plaque. Status is machine state:
+in-progress wears warning tape and a breathing LED; retired sits dusty at 82% opacity; featured
+machines are edge-lit at rest. All of it collapses to a clean still card under reduced motion.
 
-## Where this build deliberately departs from the original brief
+## The asset system
 
-1. **Astro static output instead of a React SPA + prerender plugin.** Content only changes via
-   commits, which already trigger rebuilds — so pages are baked at build time. Crawlers get real
-   HTML by construction (the brief's biggest stated fear), public routes ship ~0 KB of framework
-   JS, and deep links are real files.
-2. **No `404.html` copy hack.** The brief required copying `index.html` to `404.html` to keep an
-   SPA's deep links alive. Fully static output makes that unnecessary: `404.html` is the real,
-   designed 404 page, served with a real 404 status.
-3. **Content baked at build, not fetched at runtime.** No loading states, no fetch-failure
-   states, no layout shift on the public site; a malformed content file fails the *build* (with
-   a message naming the file, item and field), never the visitor. The admin still reads/writes
-   live via the GitHub API, so it is never stale.
-4. **No framer-motion, no lucide-react, no GoatCounter.** The motion spec needs ~30 lines of CSS
-   and one IntersectionObserver, not a runtime animation library. Icons are a handful of inline
-   SVGs. Analytics was cut entirely: a third-party request on every view to show single-digit
-   view counts on a young portfolio is negative value; it can be added later if traffic ever
-   justifies it.
-5. **Reordering uses ↑/↓ buttons, not drag-and-drop.** Drag fights scrolling on the 390px touch
-   viewport the brief itself prioritises, and buttons are keyboard-accessible for free.
-6. **Sort control on /projects cut.** The grid follows the owner's curated order (with search,
-   category and tag filters for discovery). A sort dropdown would let a visitor un-curate the
-   page; the curation *is* the feature.
-7. **Contents API kept (not the Git Data API), with ordering as the integrity mechanism.**
-   Media uploads commit *before* the JSON that references them, so a saved item can never point
-   at a missing file. The one remaining failure mode (an uploaded file nobody references) is
-   harmless and visible in the media library as "not used anywhere."
+Every visual has a procedural default and an optional file override (see `SWAP.md`): hero GLB
+(`public/media/models/hero.glb` summons a 3D stage on the home page), display face
+(`public/fonts/display*.woff2`), grain texture (`public/media/textures/grain.png`), ambience
+(`public/media/audio/ambience.mp3` — no file, no button, no sound). Project models flow through
+the admin as before; the viewer auto-frames wrong-scale/off-origin exports (verified with a
+100×-scaled test model) and applies a slow idle so nothing sits frozen.
 
-## Kept from the brief, on purpose
+## Honest cuts
 
-`<model-viewer>` for 3D (it is genuinely the right tool: orbit controls, posters, lazy loading —
-hand-rolled three.js would be strictly worse); Formspree-or-mailto for contact; skills as plain
-tags; the collection-per-file JSON layout (single editor, simple conflict story); dark theme
-default with a first-class light theme; the route list (minus nothing the client asked for).
+- **Procedural per-project 3D machines (brief §12 B2 fallback) — attempted in design, cut at the
+  quality gate.** A convincing procedural machine per project is weeks of art; a toy-looking one
+  cheapens real work. Projects without models simply have no 3D section, which was already a
+  designed state; real GLBs get the full treatment.
+- **Pinned scroll-jacking sections — cut.** The journey uses parallax separation and staggered
+  reveals; native scroll always wins. Two pins that fight a laptop trackpad cost more than they
+  pay.
+- **Custom glowing cursor — cut.** With tilt physics, wake states, lamp glow and a live sky, a
+  replaced cursor crossed the "two things animating" budget and added a failure mode on every
+  input modality. The brief's own taste guardrails outrank its feature list.
+- **Letter-by-letter headline animation — cut** for the same reason; the hero resolves as part of
+  the world assembly instead.
+
+## Quality tier shipped (brief §15)
+
+**Tier 1 — the full layered world** (generated town, fog, ambient life, day/night sky animation),
+with the 3D layer scoped to real supplied models rather than procedural fakes.

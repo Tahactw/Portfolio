@@ -19,7 +19,7 @@ const issuers = [...groups.keys()];
   description="Professional certificates and completed coursework: CAD, embedded systems, control theory and robotics."
 >
   <div class="wrap py-14 sm:py-20">
-    <p class="eyebrow">Verified documents</p>
+    <p class="eyebrow">The proving ground</p>
     <h1 class="h2 mt-2" style="font-size: var(--fs-h2);">Certificates</h1>
     <hr class="hairline border-t mt-6" />
 
@@ -27,8 +27,8 @@ const issuers = [...groups.keys()];
       certificates.length === 0 ? (
         <div class="mt-12">
           <EmptyState
-            heading="Nothing filed yet"
-            message="Certificates will be archived here as they are earned."
+            heading="The wall is waiting"
+            message="Certificates get stamped, framed and hung here as they are earned."
           />
         </div>
       ) : (
@@ -76,6 +76,25 @@ const issuers = [...groups.keys()];
 </BaseLayout>
 
 <style>
+  /* the wall of awards: frames hang slightly crooked; hover straightens one */
+  [data-issuer-group] :global(article) {
+    transition: transform var(--dur-pop) var(--spring-pop), box-shadow var(--dur-pop) var(--spring-pop);
+    box-shadow: 0 8px 20px -12px var(--c-shadow);
+  }
+  @media (min-width: 640px) {
+    [data-issuer-group] :global(article:nth-child(3n + 1)) { transform: rotate(-1.1deg); }
+    [data-issuer-group] :global(article:nth-child(3n + 2)) { transform: rotate(0.9deg) translateY(6px); }
+    [data-issuer-group] :global(article:nth-child(3n)) { transform: rotate(-0.5deg); }
+    [data-issuer-group] :global(article:hover),
+    [data-issuer-group] :global(article:focus-within) {
+      transform: rotate(0deg) translateY(-4px);
+      box-shadow: 0 22px 36px -16px var(--c-shadow);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-issuer-group] :global(article) { transform: none !important; transition: none; }
+  }
+
   .facet-chip {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.75rem;
@@ -99,7 +118,9 @@ const issuers = [...groups.keys()];
 </style>
 
 <script>
-  const facets = [...document.querySelectorAll<HTMLButtonElement>('#skill-facets .facet-chip')];
+  function initCertFilters() {
+  const facets = [...document.querySelectorAll<HTMLButtonElement>('#skill-facets .facet-chip:not([data-wired])')];
+  facets.forEach((f) => f.setAttribute('data-wired', '1'));
   if (facets.length > 0) {
     const cards = [...document.querySelectorAll<HTMLElement>('[data-skills]')];
     const groups = [...document.querySelectorAll<HTMLElement>('[data-issuer-group]')];
@@ -131,4 +152,6 @@ const issuers = [...groups.keys()];
         apply();
       });
   }
+  }
+  document.addEventListener('astro:page-load', initCertFilters);
 </script>

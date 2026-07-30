@@ -1,36 +1,42 @@
 ---
 import type { Project } from '../lib/types';
-import { withBase, dateSpan } from '../lib/paths';
-import Tag from './Tag.astro';
+import { withBase } from '../lib/paths';
 
 interface Props {
   project: Project;
   /** Card position on its page — first cards load eagerly for LCP. */
   eager?: boolean;
-  /** Heading level for the card title, so document outline stays legal:
-      h3 under a section h2 (home), h2 directly under a page h1 (/projects). */
+  /** Heading level for the card title, so document outline stays legal. */
   headingLevel?: 'h2' | 'h3';
 }
 const { project: p, eager = false, headingLevel = 'h3' } = Astro.props;
 const Heading = headingLevel;
 
-const statusLabel: Record<Project['status'], string | null> = {
-  completed: null,
-  'in-progress': 'In progress',
+const year = p.startDate.slice(0, 4);
+const detail = p.metrics[0] ?? null;
+const statusLabel: Record<Project['status'], string> = {
+  completed: 'Completed',
+  'in-progress': 'Under construction',
   planned: 'Planned',
-  archived: 'Archived',
+  archived: 'Retired',
 };
 ---
 
 <article
-  class="reveal group border hairline rounded overflow-hidden bg-panel transition-colors duration-150 hover:border-line-strong focus-within:border-line-strong"
+  class:list={[
+    'machine reveal',
+    p.featured && 'is-featured',
+    p.status === 'in-progress' && 'is-building',
+    p.status === 'archived' && 'is-archived',
+  ]}
+  data-machine
   data-title={`${p.title} ${p.tagline} ${p.summary} ${p.stack.join(' ')}`.toLowerCase()}
   data-category={p.category}
   data-tags={p.tags.join('|')}
   data-status={p.status}
 >
-  <a href={withBase(`/projects/${p.id}`)} class="block focus-visible:outline-offset-[-2px]">
-    <div class="relative border-b hairline">
+  <a href={withBase(`/projects/${p.id}`)} class="machine-link">
+    <div class="machine-window">
       <img
         src={withBase(p.cover)}
         alt={`Cover image for ${p.title}`}
@@ -38,33 +44,241 @@ const statusLabel: Record<Project['status'], string | null> = {
         height="800"
         loading={eager ? 'eager' : 'lazy'}
         decoding="async"
-        class="w-full h-auto block"
+        transition:name={`cover-${p.id}`}
       />
+      {p.status === 'in-progress' && <span class="machine-tape" aria-hidden="true"></span>}
+    </div>
+
+    <div class="machine-plaque">
+      <p class="machine-meta mono">
+        <span
+          class:list={['machine-led', (p.featured || p.status === 'in-progress') && 'is-on']}
+          aria-hidden="true"></span>
+        {p.category} · <span class="mono-nums">{year}</span> · {statusLabel[p.status]}
+      </p>
+      <Heading class="machine-title" transition:name={`ptitle-${p.id}`}>
+        {p.title}
+      </Heading>
+      <p class="machine-tagline">{p.tagline}</p>
       {
-        statusLabel[p.status] && (
-          <span class="absolute top-3 right-3 mono text-[0.68rem] uppercase tracking-widest bg-ink/90 text-accent-text border border-accent/60 rounded px-2 py-1">
-            {statusLabel[p.status]}
-          </span>
+        detail && (
+          <p class="machine-detail mono" aria-hidden="true">
+            {detail.label}: <span class="mono-nums">{detail.value}</span>
+          </p>
         )
       }
     </div>
-    <div class="p-5">
-      <p class="mono text-[0.72rem] text-muted uppercase tracking-widest">
-        {p.category} · <span class="mono-nums normal-case">{dateSpan(p.startDate, p.endDate)}</span>
-      </p>
-      <Heading class="font-semibold text-[1.15rem] leading-snug mt-2 group-hover:text-accent-text transition-colors duration-150">
-        {p.title}
-      </Heading>
-      <p class="text-muted text-[0.95rem] mt-1.5">{p.tagline}</p>
-    </div>
   </a>
-  {
-    p.tags.length > 0 && (
-      <div class="px-5 pb-5 flex flex-wrap gap-1.5">
-        {p.tags.map((t) => (
-          <Tag label={t} />
-        ))}
-      </div>
-    )
-  }
 </article>
+
+<style is:global>
+  /* ------------------------------------------------ machines (cards) */
+  .machine {
+    position: relative;
+    border: 1px solid var(--c-line-strong);
+    border-radius: var(--radius);
+    background: var(--c-panel);
+    overflow: hidden;
+    /* thickness: a machined bottom edge + resting shadow */
+    box-shadow:
+      0 2px 0 var(--c-line),
+      0 10px 24px -14px var(--c-shadow);
+    transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg))
+      translateY(var(--lift, 0px));
+    transition:
+      transform var(--dur-pop) var(--spring-pop),
+      box-shadow var(--dur-pop) var(--spring-pop),
+      border-color var(--dur-snap) var(--spring-snap);
+  }
+  .machine:hover,
+  .machine:focus-within {
+    --lift: -7px;
+    border-color: var(--c-accent);
+    box-shadow:
+      0 3px 0 var(--c-line),
+      0 26px 44px -18px var(--c-shadow);
+  }
+  .machine-link {
+    display: block;
+    height: 100%;
+  }
+  .machine-link:focus-visible {
+    outline: 2px solid var(--c-accent);
+    outline-offset: -2px;
+  }
+
+  .machine-window {
+    position: relative;
+    border-bottom: 1px solid var(--c-line);
+    overflow: hidden;
+  }
+  .machine-window img {
+    display: block;
+    width: 100%;
+    height: auto;
+    /* powered down at rest */
+    filter: saturate(0.82) brightness(0.9);
+    transition: filter var(--dur-pop) var(--spring-pop);
+  }
+  .machine:hover .machine-window img,
+  .machine:focus-within .machine-window img {
+    filter: none;
+  }
+
+  /* under construction: a strip of warning tape across the corner */
+  .machine-tape {
+    position: absolute;
+    top: 14px;
+    right: -34px;
+    width: 130px;
+    height: 18px;
+    transform: rotate(35deg);
+    background: repeating-linear-gradient(
+      -45deg,
+      var(--c-accent) 0 10px,
+      var(--c-accent-ink) 10px 20px
+    );
+    opacity: 0.92;
+  }
+
+  .machine-plaque {
+    padding: 1.1rem 1.25rem 1.2rem;
+    position: relative;
+  }
+  .machine-meta {
+    font-size: 0.72rem;
+    color: var(--c-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+  .machine-led {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--c-line-strong);
+    flex: none;
+    transition: background var(--dur-snap) var(--spring-snap), box-shadow var(--dur-snap) var(--spring-snap);
+  }
+  .machine-led.is-on,
+  .machine:hover .machine-led,
+  .machine:focus-within .machine-led {
+    background: var(--c-accent);
+    box-shadow: 0 0 8px 1px var(--c-accent);
+  }
+  .is-building .machine-led.is-on {
+    animation: led-breathe 3.2s ease-in-out infinite;
+  }
+  @keyframes led-breathe {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+
+  .machine-title {
+    font-weight: 600;
+    font-size: 1.12rem;
+    line-height: 1.3;
+    margin-top: 0.55rem;
+    color: var(--c-text);
+    transition: color var(--dur-snap) var(--spring-snap);
+  }
+  .machine:hover .machine-title,
+  .machine:focus-within .machine-title {
+    color: var(--c-accent-text);
+  }
+  .machine-tagline {
+    color: var(--c-muted);
+    font-size: 0.93rem;
+    margin-top: 0.35rem;
+  }
+
+  /* the one technical detail, revealed on wake */
+  .machine-detail {
+    font-size: 0.72rem;
+    color: var(--c-accent-text);
+    margin-top: 0.7rem;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transform: translateY(4px);
+    transition:
+      max-height var(--dur-pop) var(--spring-pop),
+      opacity var(--dur-pop) var(--spring-pop),
+      transform var(--dur-pop) var(--spring-pop);
+  }
+  .machine:hover .machine-detail,
+  .machine:focus-within .machine-detail {
+    max-height: 2.2rem;
+    opacity: 1;
+    transform: none;
+  }
+
+  /* featured machines are lit brighter even at rest */
+  .machine.is-featured {
+    box-shadow:
+      0 2px 0 var(--c-line),
+      0 0 0 1px var(--c-accent) inset,
+      0 12px 26px -14px var(--c-shadow);
+  }
+
+  /* retired machines sit dusty in the corner */
+  .machine.is-archived {
+    opacity: 0.82;
+  }
+  .machine.is-archived .machine-window img {
+    filter: saturate(0.35) brightness(0.82);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .machine {
+      transform: none !important;
+      transition: border-color 80ms;
+    }
+    .machine-detail {
+      max-height: 2.2rem;
+      opacity: 1;
+      transform: none;
+    }
+    .machine-window img {
+      filter: none;
+      transition: none;
+    }
+    .is-building .machine-led.is-on {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  // Tilt toward the cursor: instant response in, spring settle out.
+  // Fine pointers only; reduced-motion users get the still card.
+  function initMachineTilt() {
+    if (
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+      !window.matchMedia('(hover: hover) and (pointer: fine)').matches
+    )
+      return;
+    const cards = document.querySelectorAll<HTMLElement>('[data-machine]:not([data-tilt])');
+    for (const card of cards) {
+      card.dataset.tilt = '1';
+      card.addEventListener(
+        'pointermove',
+        (e) => {
+          const r = card.getBoundingClientRect();
+          const px = (e.clientX - r.left) / r.width - 0.5;
+          const py = (e.clientY - r.top) / r.height - 0.5;
+          card.style.setProperty('--ry', `${(px * 5).toFixed(2)}deg`);
+          card.style.setProperty('--rx', `${(-py * 4).toFixed(2)}deg`);
+        },
+        { passive: true },
+      );
+      card.addEventListener('pointerleave', () => {
+        card.style.setProperty('--ry', '0deg');
+        card.style.setProperty('--rx', '0deg');
+      });
+    }
+  }
+  document.addEventListener('astro:page-load', initMachineTilt);
+</script>

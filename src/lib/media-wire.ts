@@ -20,16 +20,25 @@ export function wireModelViewers(root: ParentNode = document): void {
         const mv = document.createElement('model-viewer');
         mv.setAttribute('src', host.dataset.src ?? '');
         mv.setAttribute('alt', host.dataset.alt ?? '3D model');
+        // the viewer frames the model from its bounding box, so wrongly
+        // scaled or off-origin exports still land centred in the slot
         mv.setAttribute('camera-controls', '');
         mv.setAttribute('touch-action', 'pan-y');
         mv.setAttribute('shadow-intensity', '0.6');
         mv.setAttribute('exposure', '0.9');
+        mv.setAttribute('interaction-prompt', 'none');
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          // procedural idle: a supplied model is never left frozen
+          mv.setAttribute('auto-rotate', '');
+          mv.setAttribute('rotation-per-second', '7deg');
+          mv.setAttribute('auto-rotate-delay', '1500');
+        }
         if (host.dataset.poster) mv.setAttribute('poster', host.dataset.poster);
         mv.className = 'model-viewer-el';
         host.replaceChildren(mv);
       } catch {
         btn.disabled = false;
-        btn.textContent = 'The 3D viewer failed to load — tap to try again';
+        btn.textContent = 'The viewer failed to load — tap to power on again';
       }
     });
   }

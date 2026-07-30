@@ -107,6 +107,7 @@ a {
 }
 
 .display {
+  font-family: var(--f-display, 'Archivo'), 'Archivo', system-ui, sans-serif;
   font-stretch: 112%;
   font-weight: 640;
   letter-spacing: -0.015em;
@@ -114,6 +115,7 @@ a {
 }
 
 .h2 {
+  font-family: var(--f-display, 'Archivo'), 'Archivo', system-ui, sans-serif;
   font-stretch: 108%;
   font-weight: 600;
   letter-spacing: -0.01em;
@@ -151,6 +153,49 @@ a {
 html.no-js .reveal {
   opacity: 1;
   transform: none;
+}
+
+/* ------------------------------------------------------- hero over sky */
+/* Text sits on the sky, so its colours are tuned per theme against the
+   sky gradient (all pairs >=4.5:1 verified against sky-top AND mid). */
+.hero-vista {
+  min-height: min(92vh, 60rem);
+  display: flex;
+  align-items: flex-start;
+}
+:root[data-theme='dark'] .hero-vista,
+.hero-vista {
+  --hero-eyebrow: var(--c-accent);
+  --hero-bio: #b9cad3;
+  --hero-quiet-border: #5d7c8a;
+  --hero-quiet-text: #eaf2f5;
+}
+:root[data-theme='light'] .hero-vista {
+  --hero-eyebrow: #6e4609;
+  --hero-bio: #3a545f;
+  --hero-quiet-border: #3a545f;
+  --hero-quiet-text: #1e2e36;
+}
+.eyebrow-sky {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: var(--fs-mono);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--hero-eyebrow);
+}
+.hero-headline {
+  color: var(--c-text);
+}
+.hero-bio {
+  color: var(--hero-bio);
+}
+.hero-btn-quiet {
+  border: 1px solid var(--hero-quiet-border);
+  color: var(--hero-quiet-text);
+}
+.hero-btn-quiet:hover {
+  border-color: var(--c-accent);
 }
 
 /* Hero orchestration — the only page-load sequence on the site */
@@ -203,6 +248,26 @@ html.no-js .reveal {
     transition-duration: 80ms !important;
     animation-duration: 1ms !important;
     animation-iteration-count: 1 !important;
+  }
+}
+
+/* -------------------------------------------------- view transitions */
+/* Camera moves between pages: shared covers/titles travel on the swing
+   spring; everything else crossfades briskly underneath them. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 240ms;
+}
+::view-transition-group(*) {
+  animation-duration: 480ms;
+  animation-timing-function: var(--spring-swing);
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-image-pair(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 }
 
