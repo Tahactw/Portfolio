@@ -228,7 +228,7 @@
     "featured": false,
     "confidential": false,
     "order": 4,
-    "published": true,
+    "published": false,
     "teamSize": 2
   }
 ]
