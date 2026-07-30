@@ -26,7 +26,7 @@
     "featured": false,
     "confidential": false,
     "order": 1,
-    "published": false,
+    "published": true,
     "teamSize": 2
   },
   {
