@@ -1,0 +1,38 @@
+[
+  {
+    "id": "cswa-solidworks",
+    "title": "Certified SOLIDWORKS Associate (CSWA)",
+    "issuer": "Dassault Systèmes",
+    "issueDate": "2025-03-22",
+    "credentialId": "C-XXXXXXXXXX",
+    "image": "/media/certificates/cswa.webp",
+    "skills": ["SolidWorks", "CAD", "GD&T"],
+    "featured": true,
+    "published": true,
+    "sample": true
+  },
+  {
+    "id": "embedded-shape-the-world",
+    "title": "Embedded Systems — Shape the World",
+    "issuer": "UTAustinX (edX)",
+    "issueDate": "2024-12-14",
+    "credentialId": "UTX-XXXXXXXX",
+    "image": "/media/certificates/embedded.webp",
+    "skills": ["C (bare-metal)", "ARM Cortex-M", "Interfacing"],
+    "featured": true,
+    "published": true,
+    "sample": true
+  },
+  {
+    "id": "control-mobile-robots",
+    "title": "Control of Mobile Robots",
+    "issuer": "Georgia Tech (Coursera)",
+    "issueDate": "2025-08-02",
+    "credentialId": "COURSERA-XXXXXX",
+    "image": "/media/certificates/mobile-robots.webp",
+    "skills": ["Control theory", "PID", "Robotics"],
+    "featured": false,
+    "published": true,
+    "sample": true
+  }
+]

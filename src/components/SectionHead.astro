@@ -1,0 +1,28 @@
+---
+interface Props {
+  eyebrow: string;
+  title: string;
+  /** Optional link rendered at the right edge, e.g. "All projects". */
+  moreHref?: string;
+  moreLabel?: string;
+}
+const { eyebrow, title, moreHref, moreLabel } = Astro.props;
+---
+
+<div class="reveal">
+  <p class="eyebrow">{eyebrow}</p>
+  <div class="flex items-baseline justify-between gap-4 mt-1.5">
+    <h2 class="h2">{title}</h2>
+    {
+      moreHref && (
+        <a
+          href={moreHref}
+          class="mono text-accent-text hover:underline underline-offset-4 whitespace-nowrap py-1"
+        >
+          {moreLabel} →
+        </a>
+      )
+    }
+  </div>
+  <hr class="hairline border-t mt-4 mb-8" />
+</div>

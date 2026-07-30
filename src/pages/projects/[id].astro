@@ -1,0 +1,52 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectArticle from '../../components/react/ProjectArticle.tsx';
+import { projects, profile } from '../../lib/content';
+import { renderMarkdown } from '../../lib/markdown';
+import { withBase } from '../../lib/paths';
+
+export function getStaticPaths() {
+  return projects.map((p) => ({ params: { id: p.id }, props: { project: p } }));
+}
+
+const { project: p } = Astro.props;
+const bodyHtml = renderMarkdown(p.body);
+
+const site = Astro.site ?? new URL('http://localhost:4321');
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CreativeWork',
+  name: p.title,
+  description: p.summary,
+  author: { '@type': 'Person', name: profile.name },
+  dateCreated: p.startDate,
+  ...(p.endDate ? { dateModified: p.endDate } : {}),
+  keywords: [...p.tags, ...p.stack].join(', '),
+  image: new URL(withBase(p.cover), site).href,
+};
+---
+
+<BaseLayout
+  title={`${p.title} — ${profile.name}`}
+  description={p.summary}
+  ogImage={withBase(p.cover)}
+  jsonLd={jsonLd}
+>
+  <div class="wrap py-14 sm:py-20">
+    <nav aria-label="Breadcrumb" class="mb-10">
+      <a
+        href={withBase('/projects')}
+        class="mono text-[0.8rem] text-muted hover:text-text transition-colors duration-150 py-2 inline-block"
+      >
+        ← All projects
+      </a>
+    </nav>
+
+    <ProjectArticle project={p} bodyHtml={bodyHtml} />
+  </div>
+</BaseLayout>
+
+<script>
+  import { wireProjectMedia } from '../../lib/media-wire';
+  wireProjectMedia();
+</script>

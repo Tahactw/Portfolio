@@ -1,0 +1,21 @@
+[
+  {
+    "id": "bsc-mechatronics",
+    "qualification": "B.Sc. Mechatronics Engineering",
+    "institution": "Faculty of Engineering, Ain Shams University",
+    "location": "Cairo, Egypt",
+    "startDate": "2022-09-15",
+    "description": "Final year. Coursework spans mechanical design, control theory, embedded systems and industrial automation; graduation project is the SPAN seeding gantry.",
+    "coursework": [
+      "Control Systems I & II",
+      "Machine Design",
+      "Embedded Systems",
+      "Robotics & Manipulators",
+      "Industrial Automation & PLCs",
+      "Mechanics of Machinery",
+      "Measurement & Instrumentation"
+    ],
+    "published": true,
+    "sample": true
+  }
+]

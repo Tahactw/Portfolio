@@ -1,0 +1,19 @@
+{
+  "name": "Taha Mohammed",
+  "headline": "Mechatronics engineer — robotics, control, embedded systems",
+  "location": "Cairo, Egypt",
+  "availability": "Open to remote and relocation · graduating 2027",
+  "shortBio": "Final-year mechatronics engineer who builds machines end to end — the CAD, the board, the firmware, and the control loop that ties them together. I measure before I claim, and I document what broke.",
+  "longBio": "I'm a final-year mechatronics engineering student in Cairo, and I like the seam where disciplines meet: the point where a mechanism, a circuit and a control loop stop being three subjects and become one machine.\n\nMost of what I know that matters didn't come from lectures. It came from a robotic arm that taught me why backlash is a budget line, a line-follower that taught me that data beats intuition every time you let it, and a farm gantry that is currently teaching me that \"outdoor-adjacent\" is a materials problem before it is a software one. Each project on this site records what was built, what broke, and what was measured — because that is the part I'd want to read in someone else's portfolio.\n\nI'm graduating in 2027 and looking for a graduate role or internship in robotics, automation, or embedded systems — anywhere I'd ship hardware that has to work when nobody is watching it. Open to remote and to relocation.\n\nAway from the bench I sketch mechanisms I have no budget to build, and I maintain the university robotics club's parts library, which future members will either thank me for or never notice. Both outcomes are fine.",
+  "email": "ptehub101@yahoo.com",
+  "socials": {
+    "github": "https://github.com/Tahactw"
+  },
+  "categories": [
+    "Robotics",
+    "Embedded",
+    "Automation",
+    "CAD & Mechanical"
+  ],
+  "formspreeEndpoint": ""
+}

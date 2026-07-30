@@ -1,0 +1,84 @@
+/* ---------------------------------------------------------------------------
+   Design tokens. Single source of truth for colour, type scale, spacing
+   rhythm and motion. Components reference these via Tailwind mappings
+   (tailwind.config.ts) or directly.
+
+   Themes: [data-theme="dark"] (default) and [data-theme="light"] on <html>.
+   A small inline script in BaseLayout sets the attribute before paint.
+--------------------------------------------------------------------------- */
+
+:root {
+  /* Motion: a well-tuned servo — fast approach, clean settle, no overshoot */
+  --ease-settle: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-brisk: cubic-bezier(0.55, 0, 0.35, 1);
+  --dur-fast: 140ms;
+  --dur-base: 240ms;
+  --dur-slow: 420ms;
+
+  /* Type scale: 1.333 (perfect fourth) on a 17px body, display clamped */
+  --fs-display: clamp(2.4rem, 1.2rem + 5.2vw, 4rem);
+  --fs-h2: clamp(1.55rem, 1.2rem + 1.4vw, 2.02rem);
+  --fs-h3: 1.27rem;
+  --fs-body: 1.0625rem;   /* 17px */
+  --fs-small: 0.9rem;
+  --fs-mono: 0.8125rem;   /* 13px — labels, dims, dates */
+  --fs-mono-sm: 0.72rem;
+
+  /* Spacing rhythm, 8px base */
+  --sp-1: 0.5rem;
+  --sp-2: 1rem;
+  --sp-3: 1.5rem;
+  --sp-4: 2rem;
+  --sp-6: 3rem;
+  --sp-8: 4rem;
+  --sp-12: 6rem;
+
+  --radius: 4px; /* machined edge, barely broken */
+}
+
+:root,
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --c-ink: #0f1216;         /* page */
+  --c-panel: #151a20;       /* raised surface */
+  --c-line: #262d36;        /* hairline rules (decorative) */
+  --c-line-strong: #626d7b; /* interactive component borders, >=3:1 on ink AND panel */
+  --c-text: #e7ebef;
+  --c-muted: #9ba6b2;
+  --c-accent: #e4a339;      /* gantry amber: marks anything that responds to you */
+  --c-accent-text: #e4a339; /* accent when used as text on this theme */
+  --c-accent-ink: #1a1206;  /* text sitting on an accent-filled surface */
+  --c-shadow: rgb(0 0 0 / 0.45);
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --c-ink: #f6f7f8;         /* drafting vellum, not inverted graphite */
+  --c-panel: #ffffff;
+  --c-line: #d8dde3;
+  --c-line-strong: #808b97;
+  --c-text: #1a2027;
+  --c-muted: #5b6673;
+  --c-accent: #b57b1e;      /* non-text accent marks + focus ring, >=3:1 on white */
+  --c-accent-text: #8a5c14; /* accent as text: darkened to pass 4.5:1 */
+  --c-accent-ink: #1a1206;
+  --c-shadow: rgb(26 32 39 / 0.12);
+}
+
+@media print {
+  :root,
+  :root[data-theme='dark'],
+  :root[data-theme='light'] {
+    color-scheme: light;
+    --c-ink: #ffffff;
+    --c-panel: #ffffff;
+    --c-line: #bbbbbb;
+    --c-line-strong: #888888;
+    --c-text: #000000;
+    --c-muted: #333333;
+    --c-accent: #000000;
+    --c-accent-text: #000000;
+    --c-accent-ink: #ffffff;
+    --c-shadow: transparent;
+  }
+}

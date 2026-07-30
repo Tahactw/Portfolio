@@ -1,0 +1,80 @@
+---
+import { profile } from '../lib/content';
+import { withBase } from '../lib/paths';
+
+const year = new Date().getFullYear();
+const rev = `${year}.${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+const gh = profile.socials.github;
+const li = profile.socials.linkedin;
+const x = profile.socials.x;
+---
+
+<footer class="site-footer border-t hairline mt-auto">
+  <div class="wrap py-10">
+    <!-- Drawing title block -->
+    <div class="border hairline mono text-[0.72rem] leading-relaxed max-w-3xl" aria-label="Site information">
+      <div class="grid grid-cols-2 sm:grid-cols-4">
+        <div class="col-span-2 border-b sm:border-r hairline p-3">
+          <div class="text-muted uppercase tracking-widest text-[0.62rem]">Title</div>
+          <div class="text-text uppercase tracking-wider">Portfolio — {profile.name}</div>
+        </div>
+        <div class="border-b border-r sm:border-r hairline p-3">
+          <div class="text-muted uppercase tracking-widest text-[0.62rem]">Drawn</div>
+          <div class="text-text uppercase">{profile.name.split(' ').map((w) => w[0]).join('.')}.</div>
+        </div>
+        <div class="border-b hairline p-3">
+          <div class="text-muted uppercase tracking-widest text-[0.62rem]">Rev</div>
+          <div class="text-text mono-nums">{rev}</div>
+        </div>
+        <div class="border-b sm:border-b-0 border-r hairline p-3">
+          <div class="text-muted uppercase tracking-widest text-[0.62rem]">Scale</div>
+          <div class="text-text">1 : 1</div>
+        </div>
+        <div class="border-b sm:border-b-0 sm:border-r hairline p-3">
+          <div class="text-muted uppercase tracking-widest text-[0.62rem]">Units</div>
+          <div class="text-text">mm</div>
+        </div>
+        <div class="border-r hairline p-3">
+          <div class="text-muted uppercase tracking-widest text-[0.62rem]">Location</div>
+          <div class="text-text">{profile.location}</div>
+        </div>
+        <div class="p-3">
+          <div class="text-muted uppercase tracking-widest text-[0.62rem]">Status</div>
+          <div class="text-accent-text uppercase tracking-wider">{profile.availability.split('·')[0]?.trim()}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap items-center justify-between gap-4 mt-8">
+      <nav aria-label="Footer">
+        <ul class="flex flex-wrap gap-x-5 gap-y-1">
+          <li><a class="mono text-muted hover:text-text py-2 inline-block transition-colors duration-150" href={withBase('/projects')}>Projects</a></li>
+          <li><a class="mono text-muted hover:text-text py-2 inline-block transition-colors duration-150" href={withBase('/certificates')}>Certificates</a></li>
+          <li><a class="mono text-muted hover:text-text py-2 inline-block transition-colors duration-150" href={withBase('/about')}>About</a></li>
+          <li><a class="mono text-muted hover:text-text py-2 inline-block transition-colors duration-150" href={withBase('/contact')}>Contact</a></li>
+        </ul>
+      </nav>
+      <ul class="flex flex-wrap gap-x-5 gap-y-1">
+        {gh && (
+          <li>
+            <a class="mono text-muted hover:text-text py-2 inline-block transition-colors duration-150" href={gh} target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+          </li>
+        )}
+        {li && (
+          <li>
+            <a class="mono text-muted hover:text-text py-2 inline-block transition-colors duration-150" href={li} target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
+          </li>
+        )}
+        {x && (
+          <li>
+            <a class="mono text-muted hover:text-text py-2 inline-block transition-colors duration-150" href={x} target="_blank" rel="noopener noreferrer">X ↗</a>
+          </li>
+        )}
+        <li>
+          <a class="mono text-muted hover:text-text py-2 inline-block transition-colors duration-150" href={`mailto:${profile.email}`}>{profile.email}</a>
+        </li>
+      </ul>
+    </div>
+    <p class="mono text-[0.72rem] text-muted mt-6">© {year} {profile.name}. Built as a static site, edited from its own admin panel.</p>
+  </div>
+</footer>

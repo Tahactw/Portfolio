@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Datum target symbol: quadrant-filled circle with crosshair -->
+  <style>
+    .stroke { stroke: #1a2027; }
+    .fill { fill: #1a2027; }
+    @media (prefers-color-scheme: dark) {
+      .stroke { stroke: #e7ebef; }
+      .fill { fill: #e7ebef; }
+    }
+  </style>
+  <circle cx="32" cy="32" r="24" fill="none" class="stroke" stroke-width="4"/>
+  <path d="M32 8 A24 24 0 0 1 56 32 L32 32 Z" class="fill"/>
+  <path d="M32 56 A24 24 0 0 1 8 32 L32 32 Z" class="fill"/>
+  <line x1="32" y1="0" x2="32" y2="12" class="stroke" stroke-width="4"/>
+  <line x1="32" y1="52" x2="32" y2="64" class="stroke" stroke-width="4"/>
+  <line x1="0" y1="32" x2="12" y2="32" class="stroke" stroke-width="4"/>
+  <line x1="52" y1="32" x2="64" y2="32" class="stroke" stroke-width="4"/>
+  <circle cx="32" cy="32" r="3.5" fill="#e4a339" stroke="none"/>
+</svg>

@@ -1,0 +1,64 @@
+# Builds the site and publishes it to GitHub Pages.
+# Runs on every push to main (which is what the admin panel creates when you
+# save) and can also be started by hand from the Actions tab.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# A save in the admin panel can produce several commits in quick succession
+# (media, then content). Cancel superseded builds; only the newest deploys.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      # These let the build derive the site URL, base path and the repo the
+      # admin panel talks to — no config file to edit, ever.
+      PUBLIC_GH_REPO: ${{ github.repository }}
+      # If you attach a custom domain later, un-comment and fill this in:
+      # CUSTOM_DOMAIN: example.com
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check
+        run: npx astro check
+
+      - name: Build the site
+        run: npm run build
+
+      - name: Upload the built site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

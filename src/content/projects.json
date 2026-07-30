@@ -1,0 +1,120 @@
+[
+  {
+    "id": "argos-robotic-arm",
+    "title": "ARGOS — 6-DOF Desktop Robotic Arm",
+    "tagline": "A 3D-printed six-axis arm with closed-form inverse kinematics on an STM32.",
+    "summary": "Designed, printed and programmed a six-axis desktop manipulator from scratch: harmonic-style cycloidal reducers, closed-form IK running at 500 Hz on bare-metal STM32, and a Python teach-pendant over serial. Repeatability measured at ±0.8 mm across the working envelope.",
+    "body": "## The problem\n\nCommercial desktop arms with usable repeatability start around $2,000, and the affordable kits below that price hide their real limitation in the spec sheet: backlash. Hobby servos with plastic gear trains lose 2–3° at every joint, which at a 400 mm reach means the tool tip lands anywhere inside a ±20 mm circle. I wanted to find out how much of that gap a careful student build could close with printed parts and $260 of components.\n\n## Constraints\n\n- Total budget of $300, including the controller\n- Printable on a 220 × 220 mm bed (Ender-3), PETG only\n- No machined parts except the two bearing seats turned by a local shop\n- Everything computed on the microcontroller — the host PC only streams targets\n\n## Approach\n\n**Mechanics.** The three proximal joints use printed cycloidal reducers (11:1, 17:1, 17:1) driven by NEMA-17 steppers. Cycloidal profiles tolerate FDM inaccuracy far better than involute gears because load spreads across many lobes at once; measured lost motion at joint 2 came out at 0.31° after preloading the pin ring with a 0.15 mm interference. The wrist runs three MG996R servos — a deliberate concession, because the last three joints see a fraction of the moment the base does.\n\n**Kinematics.** With a spherical wrist, the IK decouples: position solves the first three joints geometrically, orientation solves the last three from the remaining rotation matrix. The closed-form solution runs in 41 µs on the STM32F446 at 180 MHz — fast enough to solve every control tick at 500 Hz rather than interpolating in joint space. Trajectories are time-scaled quintic polynomials, so velocity and acceleration stay continuous through waypoints.\n\n**Firmware.** Bare-metal C. TIM2 drives the 500 Hz control loop; step pulses are generated in hardware by TIM3/TIM4 so the loop never bit-bangs. A UART protocol with CRC-8 framing accepts pose targets from the Python pendant, which also live-plots joint angles for tuning.\n\n## What broke\n\n- The first joint-2 reducer ran an unpreloaded pin ring; under a 1 kg test load the printed pins deflected and lost motion hit 1.4°. The fix — steel dowel pins in reamed holes plus the interference preload — cost $4 and one week of reprints.\n- Servo jitter on the wrist traced back to a shared BEC browning out under stall transients. Separating logic and servo rails, with a common ground star point, killed it.\n- The quintic planner originally allocated segment times from peak velocity only; long slow moves ended with a perceptible creep. Time allocation now respects both velocity and acceleration bounds.\n\n## Measured\n\nRepeatability was measured by returning to a taught pose from randomised approach directions, 30 trials, dial indicator on a fixed anvil: **±0.8 mm** at the tool flange. Payload at full horizontal reach is **1.2 kg** before joint-2 stall. End-to-end latency, pendant to first motion: **11 ms**.\n\n## Next\n\nThe wrist servos are the accuracy floor now. Rev B swaps them for the same stepper-cycloidal stack scaled down, and moves the pendant protocol to CAN so the arm can join a ROS 2 bus as a proper hardware node.",
+    "role": "Solo — mechanical design, firmware, control",
+    "teamSize": 1,
+    "startDate": "2025-06-10",
+    "endDate": "2026-02-21",
+    "status": "completed",
+    "category": "Robotics",
+    "tags": ["robotics", "kinematics", "3d-printing", "motion-control"],
+    "stack": ["SolidWorks", "STM32F446", "C (bare-metal)", "Python", "Matplotlib"],
+    "cover": "/media/projects/argos-cover.webp",
+    "gallery": ["/media/projects/argos-reducer.webp", "/media/projects/argos-pendant.webp"],
+    "models": [
+      {
+        "src": "/media/models/argos-joint.glb",
+        "label": "Joint 2 cycloidal reducer — simplified assembly",
+        "poster": "/media/projects/argos-reducer.webp"
+      }
+    ],
+    "videos": [],
+    "links": [],
+    "metrics": [
+      { "label": "Repeatability", "value": "±0.8 mm" },
+      { "label": "Payload @ full reach", "value": "1.2 kg" },
+      { "label": "IK solve time", "value": "41 µs" },
+      { "label": "Control loop", "value": "500 Hz" },
+      { "label": "Build cost", "value": "$260" }
+    ],
+    "highlights": [
+      "Closed-form 6-DOF inverse kinematics solved every 2 ms tick on a bare-metal STM32",
+      "Printed cycloidal reducers brought joint backlash from ~2.5° (servo baseline) to 0.31°",
+      "±0.8 mm repeatability measured over 30 randomised trials with a dial indicator",
+      "Full electronics + mechanics under a $300 budget"
+    ],
+    "featured": true,
+    "confidential": false,
+    "order": 1,
+    "published": true,
+    "sample": true
+  },
+  {
+    "id": "vector-line-follower",
+    "title": "VECTOR — 1 kHz PID Line Follower",
+    "tagline": "A 143 g racer that went from mid-pack to a regional final by treating tuning as an experiment.",
+    "summary": "Competition line follower built around an 8-sensor reflectance array and a 1 kHz cascaded PID loop on an RP2040. Logged every run to flash, tuned against the data instead of by feel, and cut our best lap from 24.1 s to 16.8 s over one season.",
+    "body": "## The problem\n\nEvery university line-follower looks the same on paper: reflectance array, two motors, PID. The difference between mid-pack and podium is almost entirely in what you can *measure*. Our first event ended 11th of 18 with a robot tuned by nudging gains between runs and remembering what felt faster. The rebuild was organised around one rule: no gain changes without data.\n\n## Constraints\n\n- Contest rules: 25 × 25 cm footprint, fully autonomous, 19 mm line\n- Battery: 2S LiPo, one pack per session — efficiency mattered\n- Total mass target under 150 g, because lap time correlated with mass more strongly than with top speed in our early logs\n\n## Approach\n\n**Sensing.** Eight QTR-8A reflectance sensors, read by DMA-driven ADC at 4 kHz and downsampled. Line position comes from a centroid over calibrated readings — each sensor min/max is captured in a 3-second calibration sweep at power-on, so lighting changes between venues stop mattering.\n\n**Control.** A cascaded structure: an outer position loop (PD, 1 kHz) outputs a differential command into inner per-wheel velocity loops (PI, 1 kHz) closed on magnetic encoders. Separating the loops let us push the position loop's derivative gain without exciting the motor-driver deadband oscillation that killed the single-loop version.\n\n**Telemetry.** Every run writes a 1 kHz log — line position, error terms, PWM, battery voltage — to the RP2040's flash, pulled over USB afterwards into a Python notebook. The notebook overlays runs on the same track segments, so a gain change becomes a before/after plot instead of an argument.\n\n## What broke\n\n- Encoder magnets pressed into the first motor mounts drifted under vibration; one wheel's velocity loop chased a wandering zero. New mounts locate the magnets with a retaining shoulder and thread-locked screws.\n- The derivative term amplified sensor noise at speed until we filtered line position with a 25 Hz first-order low-pass — found by plotting the error spectrum from logs, not by guessing.\n- A brownout during hard braking reset the MCU mid-run at our second event. A 470 µF bulk capacitor and a brownout-aware state machine (resume, don't restart) fixed the class of problem, not just the instance.\n\n## Measured\n\nBest lap on our 14 m practice track fell from **24.1 s to 16.8 s** across the season. Peak straight-line speed **2.9 m/s**; mass **143 g**; the robot reached the regional final and finished **4th of 31**.\n\n## Next\n\nThe logs show we lose most of our remaining time in chicane entry, where the centroid estimator saturates. A short-horizon line-shape predictor — even two samples ahead — is the obvious next experiment.",
+    "role": "Team lead — control & electronics (team of 3)",
+    "teamSize": 3,
+    "startDate": "2024-10-05",
+    "endDate": "2025-05-17",
+    "status": "completed",
+    "category": "Embedded",
+    "tags": ["control", "pid", "embedded", "competition", "telemetry"],
+    "stack": ["RP2040", "C++", "KiCad", "Python", "Jupyter"],
+    "cover": "/media/projects/vector-cover.webp",
+    "gallery": ["/media/projects/vector-telemetry.webp"],
+    "models": [],
+    "videos": [],
+    "links": [],
+    "metrics": [
+      { "label": "Best lap (14 m)", "value": "16.8 s" },
+      { "label": "Season improvement", "value": "−30%" },
+      { "label": "Control rate", "value": "1 kHz" },
+      { "label": "Mass", "value": "143 g" },
+      { "label": "Regional final", "value": "4th / 31" }
+    ],
+    "highlights": [
+      "Cascaded PD/PI control at 1 kHz on RP2040, closed on magnetic encoders",
+      "Flash telemetry on every run — gains tuned against overlaid plots, not feel",
+      "Lap time cut 30% over one season; 4th of 31 at the regional final",
+      "Custom 2-layer KiCad board integrating drivers, sensors and USB logging"
+    ],
+    "featured": true,
+    "confidential": false,
+    "order": 2,
+    "published": true,
+    "sample": true
+  },
+  {
+    "id": "span-farm-gantry",
+    "title": "SPAN — 3-Axis Seeding Gantry (Capstone)",
+    "tagline": "A greenhouse-scale CNC gantry that plants and waters a 2.4 × 1.2 m bed on its own.",
+    "summary": "Graduation project in progress: a belt-driven 3-axis gantry over a raised planting bed, with interchangeable seed and water heads, closed-loop positioning, and a scheduler that turns a planting plan into G-code-like jobs. Mechanical design complete; motion system commissioning now.",
+    "body": "## The problem\n\nSmall-plot vegetable farming in Egypt is labour-priced out of precision: seeds are broadcast by hand, watering is uniform whether a plant needs it or not. Farm-scale automation exists (FarmBot proved the category) but lands at a price and import complexity that makes no sense for a 3 m greenhouse bed. Our capstone asks a narrower question: what does the *minimum* useful farming gantry look like when every part must be sourceable in Cairo?\n\n## Constraints\n\n- Working envelope 2400 × 1200 × 400 mm over a raised bed\n- Outdoor-adjacent environment: dust, humidity, 40 °C summers\n- Locally sourceable BOM — no imports beyond standard aluminium extrusion and electronics\n- Team of four, two semesters, faculty budget of E£25,000\n\n## Approach\n\n**Structure.** 40×40 V-slot extrusion gantry riding on polymer wheels, with the long axis driven by dual GT2 belts and synchronised steppers. Belt drive over ballscrew was a deliberate trade: at ±1 mm target accuracy over 2.4 m, belts are an order of magnitude cheaper and far more dust-tolerant. FEA on the X-beam (worst case: water head full, mid-span) shows 0.6 mm deflection — inside budget.\n\n**Heads.** A dovetail quick-change mount carries either a vacuum seeding head (venturi, no pump to maintain) or a watering nozzle fed from a barrel through a solenoid. Head presence is detected by a magnet/hall pair so the controller refuses jobs with the wrong head.\n\n**Control.** A Raspberry Pi 4 runs the scheduler and web UI; motion is delegated to an STM32 running closed-loop stepper control with AS5600 encoders on each axis — the Pi speaks a small command protocol, the STM32 owns the real-time. The bed is mapped as a grid of plant cells with per-cell watering schedules.\n\n## Where it stands\n\nMechanical design is complete and the frame is assembled. X and Y axes are moving under closed-loop control; homing repeatability is currently ±0.4 mm against an inductive endstop. The seeding head has planted its first tray of lettuce indoors. Remaining before the defence: Z-axis load testing, water-system integration, and a two-week unattended trial.\n\n## What has already broken\n\n- The first idler mounts were printed PETG; summer heat plus belt preload crept them out of alignment within a week. They are now cut from 3 mm aluminium plate — the print was the prototype, the plate is the part.\n- Venturi suction was marginal on the smallest seeds until the nozzle was resized from 1.2 mm to 0.8 mm with a chamfered inlet, following a small design-of-experiments across nozzle geometry.",
+    "role": "Mechanical lead — structure, FEA, head design (team of 4)",
+    "teamSize": 4,
+    "startDate": "2025-10-01",
+    "status": "in-progress",
+    "category": "Automation",
+    "tags": ["cad", "automation", "agritech", "capstone", "fea"],
+    "stack": ["SolidWorks", "SolidWorks Simulation", "STM32", "Raspberry Pi", "Python"],
+    "cover": "/media/projects/span-cover.webp",
+    "gallery": ["/media/projects/span-frame.webp"],
+    "models": [],
+    "videos": [],
+    "links": [],
+    "metrics": [
+      { "label": "Envelope", "value": "2.4 × 1.2 × 0.4 m" },
+      { "label": "Homing repeatability", "value": "±0.4 mm" },
+      { "label": "X-beam deflection (FEA)", "value": "0.6 mm" },
+      { "label": "Budget", "value": "E£25k" }
+    ],
+    "highlights": [
+      "Full mechanical design of a 2.4 m belt-driven gantry, validated with FEA before cutting metal",
+      "Quick-change vacuum seeding and watering heads with hall-effect head detection",
+      "Real-time motion isolated on an STM32 with per-axis magnetic encoders",
+      "Every component sourceable in Cairo, inside a E£25k faculty budget"
+    ],
+    "featured": true,
+    "confidential": false,
+    "order": 3,
+    "published": true,
+    "sample": true
+  }
+]

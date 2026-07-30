@@ -1,0 +1,39 @@
+---
+/**
+ * The admin panel. Public HTML (that is fine — see README security notes):
+ * it is a client-side tool that talks only to api.github.com with a token
+ * the owner pastes in. Its JS is a lazy chunk that no public page loads.
+ */
+import '../styles/global.css';
+import AdminApp from '../admin/AdminApp';
+import { withBase } from '../lib/paths';
+---
+
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin — Portfolio</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/svg+xml" href={withBase('/favicon.svg')} />
+    <script is:inline>
+      (function () {
+        var stored = null;
+        try {
+          stored = localStorage.getItem('theme');
+        } catch (e) {}
+        var theme =
+          stored === 'light' || stored === 'dark'
+            ? stored
+            : window.matchMedia('(prefers-color-scheme: light)').matches
+              ? 'light'
+              : 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
+  </head>
+  <body class="min-h-screen">
+    <AdminApp client:only="react" />
+  </body>
+</html>

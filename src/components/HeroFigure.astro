@@ -1,0 +1,156 @@
+---
+/**
+ * The site's signature: an exploded view of a robot joint, drawn as a
+ * technical figure. The numbered balloons are real links to the featured
+ * projects (slots 1–3), so the figure is navigation, not wallpaper.
+ * Strokes plot themselves once on load (.fig-draw); reduced-motion shows
+ * the finished drawing immediately.
+ */
+import type { Project } from '../lib/types';
+import { withBase } from '../lib/paths';
+
+interface Props {
+  featured: Project[];
+}
+const { featured } = Astro.props;
+const balloons = featured.slice(0, 3);
+
+/* Cycloid disc profile, computed server-side */
+const lobes = (cx: number, cy: number, r: number, amp: number, n: number) => {
+  let d = '';
+  for (let t = 0; t <= 360; t += 4) {
+    const a = (t * Math.PI) / 180;
+    const rr = r + amp * Math.cos(n * a);
+    d += `${t === 0 ? 'M' : 'L'}${(cx + rr * Math.cos(a)).toFixed(1)},${(cy + rr * Math.sin(a)).toFixed(1)}`;
+  }
+  return `${d}Z`;
+};
+
+const CX = 210;
+const discPath = lobes(CX, 268, 62, 6, 10);
+
+/* Pin ring pins */
+const pins = Array.from({ length: 12 }, (_, i) => {
+  const a = (i / 12) * Math.PI * 2;
+  return { x: CX + 68 * Math.cos(a), y: 412 + 68 * Math.sin(a) };
+});
+
+const balloonPos = [
+  { bx: 400, by: 96, lx: CX + 52, ly: 96 },
+  { bx: 400, by: 268, lx: CX + 70, ly: 268 },
+  { bx: 400, by: 412, lx: CX + 82, ly: 412 },
+];
+---
+
+<figure class="hero-figure" aria-label="Exploded drawing of a robot joint; numbered balloons link to featured projects">
+  <svg
+    viewBox="0 0 460 600"
+    class="fig-draw w-full h-auto max-w-md mx-auto text-text"
+    role="img"
+    aria-hidden="false"
+  >
+    <!-- centreline -->
+    <line
+      x1={CX} y1="18" x2={CX} y2="560"
+      stroke="var(--c-muted)" stroke-width="1" stroke-dasharray="16 5 3 5" opacity="0.6"
+    ></line>
+
+    <!-- 1 · input: motor flange + shaft -->
+    <g fill="none" stroke="currentColor" stroke-width="1.8">
+      <rect x={CX - 52} y="60" width="104" height="52" rx="4"></rect>
+      <line x1={CX - 52} y1="86" x2={CX - 30} y2="86" stroke-width="1"></line>
+      <line x1={CX + 30} y1="86" x2={CX + 52} y2="86" stroke-width="1"></line>
+      <circle cx={CX} cy="86" r="14"></circle>
+      <line x1={CX} y1="112" x2={CX} y2="138" stroke-width="3"></line>
+    </g>
+
+    <!-- 2 · eccentric cam -->
+    <g fill="none" stroke="currentColor" stroke-width="1.8">
+      <circle cx={CX + 7} cy="170" r="17"></circle>
+      <circle cx={CX} cy="170" r="2.5" fill="currentColor" stroke="none"></circle>
+      <line x1={CX} y1="170" x2={CX + 7} y2="170" stroke="var(--c-accent)" stroke-width="1.4"></line>
+    </g>
+
+    <!-- 3 · cycloid disc (accent) -->
+    <g fill="none" stroke="var(--c-accent)" stroke-width="1.8">
+      <path d={discPath}></path>
+      <circle cx={CX} cy="268" r="20"></circle>
+      <circle cx={CX + 34} cy="248" r="9"></circle>
+      <circle cx={CX - 12} cy="230" r="9"></circle>
+      <circle cx={CX - 34} cy="290" r="9"></circle>
+      <circle cx={CX + 14} cy="304" r="9"></circle>
+    </g>
+
+    <!-- 4 · pin ring -->
+    <g fill="none" stroke="currentColor" stroke-width="1.8">
+      <circle cx={CX} cy="412" r="82"></circle>
+      <circle cx={CX} cy="412" r="56"></circle>
+      {pins.map((p) => <circle cx={p.x.toFixed(1)} cy={p.y.toFixed(1)} r="6"></circle>)}
+    </g>
+
+    <!-- 5 · output flange -->
+    <g fill="none" stroke="currentColor" stroke-width="1.8">
+      <rect x={CX - 66} y="516" width="132" height="30" rx="4"></rect>
+      <circle cx={CX - 44} cy="531" r="5"></circle>
+      <circle cx={CX} cy="531" r="8"></circle>
+      <circle cx={CX + 44} cy="531" r="5"></circle>
+    </g>
+
+    <!-- balloons: links to featured projects -->
+    {
+      balloons.map((p, i) => {
+        const pos = balloonPos[i]!;
+        return (
+          <a
+            href={withBase(`/projects/${p.id}`)}
+            class="fig-balloon"
+            aria-label={`Featured project ${i + 1}: ${p.title}`}
+          >
+            <line
+              x1={pos.lx} y1={pos.ly} x2={pos.bx - 20} y2={pos.by}
+              stroke="var(--c-muted)" stroke-width="1"
+            />
+            <circle
+              cx={pos.bx} cy={pos.by} r="19"
+              fill="var(--c-ink)" stroke="var(--c-accent)" stroke-width="1.6"
+            />
+            <text
+              x={pos.bx} y={pos.by + 5}
+              text-anchor="middle"
+              fill="var(--c-accent-text)"
+              style="font-family: 'IBM Plex Mono', monospace; font-size: 14px;"
+            >
+              {i + 1}
+            </text>
+          </a>
+        );
+      })
+    }
+  </svg>
+  <figcaption class="mono text-[0.72rem] text-muted uppercase tracking-widest text-center mt-4">
+    Fig. 1 — Joint assembly, exploded view
+    {balloons.length > 0 && <span class="block mt-1 normal-case tracking-wider">balloons link to selected work</span>}
+  </figcaption>
+</figure>
+
+<style>
+  .fig-balloon {
+    cursor: pointer;
+  }
+  .fig-balloon:hover circle,
+  .fig-balloon:focus-visible circle {
+    stroke-width: 3;
+  }
+  .fig-balloon:focus-visible {
+    outline: 2px solid var(--c-accent);
+    outline-offset: 3px;
+    border-radius: 50%;
+  }
+  /* balloons and text are UI, not part of the plotted drawing */
+  .fig-balloon circle,
+  .fig-balloon line {
+    animation: none !important;
+    stroke-dasharray: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+</style>

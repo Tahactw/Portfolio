@@ -1,0 +1,30 @@
+[
+  {
+    "id": "mechanical-design",
+    "label": "Mechanical design",
+    "skills": ["SolidWorks", "Fusion 360", "GD&T", "DFM for FDM printing", "FEA (SolidWorks Simulation)", "3D printing", "Laser cutting"],
+    "order": 1,
+    "sample": true
+  },
+  {
+    "id": "embedded",
+    "label": "Embedded systems",
+    "skills": ["C / C++", "STM32 (bare-metal & HAL)", "RP2040", "FreeRTOS basics", "UART / SPI / I2C / CAN", "KiCad", "Motor drivers & power"],
+    "order": 2,
+    "sample": true
+  },
+  {
+    "id": "control",
+    "label": "Control",
+    "skills": ["PID design & tuning", "Cascaded loops", "Trajectory generation", "MATLAB / Simulink", "Sensor calibration & filtering"],
+    "order": 3,
+    "sample": true
+  },
+  {
+    "id": "software",
+    "label": "Software",
+    "skills": ["Python", "NumPy / Matplotlib", "ROS 2 basics", "Git", "Linux"],
+    "order": 4,
+    "sample": true
+  }
+]

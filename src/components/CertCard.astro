@@ -1,0 +1,58 @@
+---
+import type { Certificate } from '../lib/types';
+import { withBase, formatDate } from '../lib/paths';
+import Tag from './Tag.astro';
+
+interface Props {
+  cert: Certificate;
+}
+const { cert: c } = Astro.props;
+
+const today = new Date().toISOString().slice(0, 10);
+const expired = !!c.expiryDate && c.expiryDate < today;
+---
+
+<article
+  class="reveal border hairline rounded overflow-hidden bg-panel"
+  data-skills={c.skills.join('|')}
+>
+  <div class="border-b hairline relative">
+    <img
+      src={withBase(c.image)}
+      alt={`Certificate: ${c.title}, issued by ${c.issuer}`}
+      width="1200"
+      height="860"
+      loading="lazy"
+      decoding="async"
+      class="w-full h-auto block"
+    />
+    {
+      expired && (
+        <span class="absolute top-3 right-3 mono text-[0.68rem] uppercase tracking-widest bg-ink/90 text-muted border hairline rounded px-2 py-1">
+          Expired
+        </span>
+      )
+    }
+  </div>
+  <div class="p-5">
+    <h3 class="font-semibold leading-snug">{c.title}</h3>
+    <p class="mono text-[0.72rem] text-muted uppercase tracking-widest mt-2">
+      {c.issuer} · <span class="mono-nums normal-case">{formatDate(c.issueDate)}</span>
+      {c.expiryDate && !expired && (
+        <span class="mono-nums normal-case"> · valid to {formatDate(c.expiryDate)}</span>
+      )}
+    </p>
+    {c.credentialId && (
+      <p class="mono text-[0.72rem] text-muted mt-1">ID {c.credentialId}</p>
+    )}
+    {
+      c.skills.length > 0 && (
+        <div class="flex flex-wrap gap-1.5 mt-3">
+          {c.skills.map((s) => (
+            <Tag label={s} />
+          ))}
+        </div>
+      )
+    }
+  </div>
+</article>

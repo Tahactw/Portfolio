@@ -1,0 +1,34 @@
+[
+  {
+    "id": "delta-automation-intern",
+    "role": "Automation Engineering Intern",
+    "organisation": "Delta Industrial Automation",
+    "location": "10th of Ramadan City, Egypt",
+    "startDate": "2025-07-01",
+    "endDate": "2025-09-15",
+    "description": "Ten-week internship on a bottling-line retrofit team, moving a 1998 filling line from relay logic to a Siemens S7-1200 with a modern HMI.",
+    "highlights": [
+      "Translated 40 pages of relay ladder schematics into structured TIA Portal blocks, reviewed and commissioned on the live line",
+      "Wired and validated the E-stop chain to EN ISO 13850 with the site safety engineer",
+      "Wrote the operator changeover checklist that cut format-change downtime from 55 to 35 minutes"
+    ],
+    "published": true,
+    "sample": true
+  },
+  {
+    "id": "robotics-club-lead",
+    "role": "Technical Lead, University Robotics Club",
+    "organisation": "Faculty of Engineering",
+    "location": "Cairo, Egypt",
+    "startDate": "2024-09-01",
+    "endDate": "2025-06-30",
+    "description": "Led the 12-member build team through a competition season: two line-follower entries, one sumo robot, and the club's first PCB workshop series.",
+    "highlights": [
+      "Ran weekly build nights and design reviews; both line-follower entries reached regional finals",
+      "Taught a 4-session KiCad workshop that took 15 members from schematic to a fabbed board",
+      "Introduced git and a parts-library discipline that outlived my term"
+    ],
+    "published": true,
+    "sample": true
+  }
+]

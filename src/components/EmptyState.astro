@@ -1,0 +1,24 @@
+---
+interface Props {
+  heading: string;
+  message: string;
+  actionHref?: string;
+  actionLabel?: string;
+}
+const { heading, message, actionHref, actionLabel } = Astro.props;
+---
+
+<div class="border border-dashed border-line rounded p-8 sm:p-12 text-center max-w-xl mx-auto">
+  <p class="eyebrow">{heading}</p>
+  <p class="text-muted mt-3">{message}</p>
+  {
+    actionHref && (
+      <a
+        href={actionHref}
+        class="inline-block mono text-accent-text hover:underline underline-offset-4 mt-5 py-1"
+      >
+        {actionLabel} →
+      </a>
+    )
+  }
+</div>

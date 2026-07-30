@@ -1,0 +1,183 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { profile } from '../lib/content';
+
+const hasForm = !!profile.formspreeEndpoint;
+const gh = profile.socials.github;
+const li = profile.socials.linkedin;
+const x = profile.socials.x;
+---
+
+<BaseLayout
+  title={`Contact — ${profile.name}`}
+  description={`Get in touch with ${profile.name} — ${profile.availability}.`}
+>
+  <div class="wrap py-14 sm:py-20 max-w-3xl">
+    <p class="eyebrow">Signal input</p>
+    <h1 class="h2 mt-2" style="font-size: var(--fs-h2);">Contact</h1>
+    <p class="text-muted mt-3 max-w-xl">
+      Recruiting, collaborating, or just want to talk shop about a mechanism? I read everything
+      that lands here. {profile.availability}.
+    </p>
+    <hr class="hairline border-t mt-6 mb-10" />
+
+    {
+      hasForm ? (
+        <form
+          id="contact-form"
+          method="POST"
+          action={profile.formspreeEndpoint}
+          class="space-y-6"
+          novalidate
+        >
+          <div>
+            <label for="cf-name" class="mono text-[0.8rem] text-text block mb-2">Your name</label>
+            <input
+              id="cf-name"
+              name="name"
+              type="text"
+              required
+              autocomplete="name"
+              class="w-full bg-panel border border-line-strong rounded px-3.5 py-3 text-text"
+              aria-describedby="cf-name-err"
+            />
+            <p id="cf-name-err" class="mono text-[0.75rem] text-accent-text mt-1.5 hidden">
+              Add your name so I know who I'm replying to.
+            </p>
+          </div>
+          <div>
+            <label for="cf-email" class="mono text-[0.8rem] text-text block mb-2">Your email</label>
+            <input
+              id="cf-email"
+              name="email"
+              type="email"
+              required
+              autocomplete="email"
+              class="w-full bg-panel border border-line-strong rounded px-3.5 py-3 text-text"
+              aria-describedby="cf-email-err"
+            />
+            <p id="cf-email-err" class="mono text-[0.75rem] text-accent-text mt-1.5 hidden">
+              That email doesn't look complete — check it and try again.
+            </p>
+          </div>
+          <div>
+            <label for="cf-message" class="mono text-[0.8rem] text-text block mb-2">Message</label>
+            <textarea
+              id="cf-message"
+              name="message"
+              rows="6"
+              required
+              class="w-full bg-panel border border-line-strong rounded px-3.5 py-3 text-text"
+              aria-describedby="cf-message-err"
+            />
+            <p id="cf-message-err" class="mono text-[0.75rem] text-accent-text mt-1.5 hidden">
+              The message is empty — write a line or two.
+            </p>
+          </div>
+          <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true" />
+          <div class="flex items-center gap-4 flex-wrap">
+            <button
+              type="submit"
+              class="mono text-[0.85rem] bg-accent text-accent-ink rounded px-6 py-3 hover:opacity-90 transition-opacity duration-150"
+            >
+              Send message
+            </button>
+            <p id="cf-status" class="mono text-[0.8rem] text-muted" role="status" aria-live="polite"></p>
+          </div>
+        </form>
+      ) : (
+        <div class="border hairline rounded p-6 sm:p-8">
+          <p class="text-[0.98rem]">
+            The fastest way to reach me is email — I usually reply within a day or two.
+          </p>
+          <a
+            href={`mailto:${profile.email}?subject=Hello%20from%20your%20portfolio`}
+            class="mono text-[0.9rem] bg-accent text-accent-ink rounded px-5 py-3 inline-block mt-5 hover:opacity-90 transition-opacity duration-150"
+          >
+            Email {profile.email}
+          </a>
+        </div>
+      )
+    }
+
+    <div class="mt-12">
+      <h2 class="eyebrow">Elsewhere</h2>
+      <ul class="mt-4 space-y-2">
+        {gh && (
+          <li>
+            <a class="mono text-[0.85rem] text-accent-text hover:underline underline-offset-4" href={gh} target="_blank" rel="noopener noreferrer">
+              GitHub ↗
+            </a>
+          </li>
+        )}
+        {li && (
+          <li>
+            <a class="mono text-[0.85rem] text-accent-text hover:underline underline-offset-4" href={li} target="_blank" rel="noopener noreferrer">
+              LinkedIn ↗
+            </a>
+          </li>
+        )}
+        {x && (
+          <li>
+            <a class="mono text-[0.85rem] text-accent-text hover:underline underline-offset-4" href={x} target="_blank" rel="noopener noreferrer">
+              X ↗
+            </a>
+          </li>
+        )}
+        <li>
+          <a class="mono text-[0.85rem] text-accent-text hover:underline underline-offset-4" href={`mailto:${profile.email}`}>
+            {profile.email}
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  // Progressive enhancement over the plain Formspree POST: inline validation
+  // and an in-page status line instead of a full navigation.
+  const form = document.getElementById('contact-form') as HTMLFormElement | null;
+  if (form) {
+    const status = document.getElementById('cf-status');
+    const fields = [
+      { input: 'cf-name', err: 'cf-name-err' },
+      { input: 'cf-email', err: 'cf-email-err' },
+      { input: 'cf-message', err: 'cf-message-err' },
+    ];
+
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      let ok = true;
+      for (const f of fields) {
+        const input = document.getElementById(f.input) as HTMLInputElement | HTMLTextAreaElement;
+        const err = document.getElementById(f.err);
+        const valid = input.checkValidity();
+        err?.classList.toggle('hidden', valid);
+        input.setAttribute('aria-invalid', String(!valid));
+        if (!valid && ok) {
+          input.focus();
+          ok = false;
+        }
+      }
+      if (!ok || !status) return;
+
+      status.textContent = 'Sending…';
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { Accept: 'application/json' },
+        });
+        if (res.ok) {
+          form.reset();
+          status.textContent = 'Sent. Thanks — I\'ll reply by email.';
+        } else {
+          status.textContent = 'That didn\'t send. Try again, or email me directly instead.';
+        }
+      } catch {
+        status.textContent = 'No connection. Try again, or email me directly instead.';
+      }
+    });
+  }
+</script>

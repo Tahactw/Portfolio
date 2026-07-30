@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { withBase } from '../lib/paths';
+---
+
+<BaseLayout
+  title="Page not found — Taha Mohammed"
+  description="This page does not exist."
+  noindex
+>
+  <div class="wrap py-24 sm:py-36 text-center">
+    <p class="eyebrow">Drawing not found</p>
+    <p class="display mono-nums mt-4" style="font-size: clamp(4rem, 14vw, 8rem); line-height: 1;" aria-hidden="true">
+      404
+    </p>
+    <h1 class="text-[1.1rem] font-semibold mt-6">This sheet isn't in the document set.</h1>
+    <p class="text-muted mt-2 max-w-md mx-auto">
+      The link may be old, or the page may have been renamed. Everything current is indexed from
+      the pages below.
+    </p>
+    <div class="flex flex-wrap justify-center gap-3 mt-9">
+      <a
+        href={withBase('/')}
+        class="mono text-[0.85rem] bg-accent text-accent-ink rounded px-5 py-3 hover:opacity-90 transition-opacity duration-150"
+      >
+        Home
+      </a>
+      <a
+        href={withBase('/projects')}
+        class="mono text-[0.85rem] border border-line-strong text-text rounded px-5 py-3 hover:border-accent hover:text-accent-text transition-colors duration-150"
+      >
+        Projects
+      </a>
+    </div>
+  </div>
+</BaseLayout>

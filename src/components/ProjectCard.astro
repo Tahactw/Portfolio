@@ -1,0 +1,70 @@
+---
+import type { Project } from '../lib/types';
+import { withBase, dateSpan } from '../lib/paths';
+import Tag from './Tag.astro';
+
+interface Props {
+  project: Project;
+  /** Card position on its page — first cards load eagerly for LCP. */
+  eager?: boolean;
+  /** Heading level for the card title, so document outline stays legal:
+      h3 under a section h2 (home), h2 directly under a page h1 (/projects). */
+  headingLevel?: 'h2' | 'h3';
+}
+const { project: p, eager = false, headingLevel = 'h3' } = Astro.props;
+const Heading = headingLevel;
+
+const statusLabel: Record<Project['status'], string | null> = {
+  completed: null,
+  'in-progress': 'In progress',
+  planned: 'Planned',
+  archived: 'Archived',
+};
+---
+
+<article
+  class="reveal group border hairline rounded overflow-hidden bg-panel transition-colors duration-150 hover:border-line-strong focus-within:border-line-strong"
+  data-title={`${p.title} ${p.tagline} ${p.summary} ${p.stack.join(' ')}`.toLowerCase()}
+  data-category={p.category}
+  data-tags={p.tags.join('|')}
+  data-status={p.status}
+>
+  <a href={withBase(`/projects/${p.id}`)} class="block focus-visible:outline-offset-[-2px]">
+    <div class="relative border-b hairline">
+      <img
+        src={withBase(p.cover)}
+        alt={`Cover image for ${p.title}`}
+        width="1200"
+        height="800"
+        loading={eager ? 'eager' : 'lazy'}
+        decoding="async"
+        class="w-full h-auto block"
+      />
+      {
+        statusLabel[p.status] && (
+          <span class="absolute top-3 right-3 mono text-[0.68rem] uppercase tracking-widest bg-ink/90 text-accent-text border border-accent/60 rounded px-2 py-1">
+            {statusLabel[p.status]}
+          </span>
+        )
+      }
+    </div>
+    <div class="p-5">
+      <p class="mono text-[0.72rem] text-muted uppercase tracking-widest">
+        {p.category} · <span class="mono-nums normal-case">{dateSpan(p.startDate, p.endDate)}</span>
+      </p>
+      <Heading class="font-semibold text-[1.15rem] leading-snug mt-2 group-hover:text-accent-text transition-colors duration-150">
+        {p.title}
+      </Heading>
+      <p class="text-muted text-[0.95rem] mt-1.5">{p.tagline}</p>
+    </div>
+  </a>
+  {
+    p.tags.length > 0 && (
+      <div class="px-5 pb-5 flex flex-wrap gap-1.5">
+        {p.tags.map((t) => (
+          <Tag label={t} />
+        ))}
+      </div>
+    )
+  }
+</article>

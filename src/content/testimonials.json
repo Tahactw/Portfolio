@@ -1,0 +1,20 @@
+[
+  {
+    "id": "capstone-supervisor",
+    "quote": "Taha treats a deadline the way he treats a tolerance: something you design to, not something you hope for. The gantry's mechanical package was the most complete design review submission I have received from an undergraduate team.",
+    "author": "Dr. A. Hassan",
+    "title": "Capstone supervisor",
+    "organisation": "Faculty of Engineering",
+    "published": true,
+    "sample": true
+  },
+  {
+    "id": "internship-mentor",
+    "quote": "We gave him the ladder-logic translation expecting to check every rung. After the first week we stopped checking. He asks the question behind the question, then writes it down so the next intern won't have to ask.",
+    "author": "Eng. M. Farouk",
+    "title": "Senior Automation Engineer",
+    "organisation": "Delta Industrial Automation",
+    "published": true,
+    "sample": true
+  }
+]
