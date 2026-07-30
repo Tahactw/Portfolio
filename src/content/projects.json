@@ -1,5 +1,35 @@
 [
   {
+    "id": "ball-beam",
+    "title": "Ball & Beam",
+    "tagline": "Control",
+    "summary": "dsa",
+    "body": "dsafdas",
+    "role": "Lead",
+    "startDate": "2026-07-30",
+    "status": "completed",
+    "category": "Robotics",
+    "tags": [
+      "embedded"
+    ],
+    "stack": [],
+    "cover": "/media/projects/villa-1-2-ms7i1vqo.webp",
+    "gallery": [
+      "/media/projects/whatsapp-image-2026-07-17-at-7-23-11-pm--ms7i26gg.webp",
+      "/media/projects/whatsapp-image-2026-07-17-at-7-23-11-pm--ms7i2bn4.webp"
+    ],
+    "models": [],
+    "videos": [],
+    "links": [],
+    "metrics": [],
+    "highlights": [],
+    "featured": false,
+    "confidential": false,
+    "order": 1,
+    "published": true,
+    "teamSize": 2
+  },
+  {
     "id": "argos-robotic-arm",
     "title": "ARGOS — 6-DOF Desktop Robotic Arm",
     "tagline": "A 3D-printed six-axis arm with closed-form inverse kinematics on an STM32.",
@@ -68,39 +98,9 @@
     ],
     "featured": true,
     "confidential": false,
-    "order": 1,
-    "published": true,
-    "sample": true
-  },
-  {
-    "id": "ball-beam",
-    "title": "Ball & Beam",
-    "tagline": "Control",
-    "summary": "dsa",
-    "body": "dsafdas",
-    "role": "Lead",
-    "startDate": "2026-07-30",
-    "status": "completed",
-    "category": "Robotics",
-    "tags": [
-      "embedded"
-    ],
-    "stack": [],
-    "cover": "/media/projects/villa-1-2-ms7i1vqo.webp",
-    "gallery": [
-      "/media/projects/whatsapp-image-2026-07-17-at-7-23-11-pm--ms7i26gg.webp",
-      "/media/projects/whatsapp-image-2026-07-17-at-7-23-11-pm--ms7i2bn4.webp"
-    ],
-    "models": [],
-    "videos": [],
-    "links": [],
-    "metrics": [],
-    "highlights": [],
-    "featured": false,
-    "confidential": false,
     "order": 2,
     "published": true,
-    "teamSize": 2
+    "sample": true
   },
   {
     "id": "vector-line-follower",
